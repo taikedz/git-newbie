@@ -4,6 +4,10 @@
 
 It started out as a simple shortcut for adding and committing at the same time without having to re-write commands between diffs and commit instructions, but recently has grown to be a minor molly-guard to some bad beginners' habits.
 
+## Installing
+
+Run `sudo ./bbmake --install` to install the latest version
+
 ## Useful features
 
 Running `gitn` without arguments will cause a `git fetch` to happen (unless you specify argument `-nf`) and then display the `git status` - for example
