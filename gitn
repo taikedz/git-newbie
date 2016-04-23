@@ -1,0 +1,67 @@
+#!/bin/bash
+
+### Git Shorthands Usage:help
+#
+# Some shorthands for managing git repositories.
+#
+###
+
+#% bundle help/info.txt
+
+if [[ "$*" =~ --help ]]; then
+	cat help/info.txt
+	exit 0
+fi
+
+# ======
+# Import items that include useful tools/functionality
+#% include bashout askuser
+#% include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh
+
+ADDFILE=
+COMMIT=
+ACTION=
+FETCHING=yes
+CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
+branchpat='^[a-zA-Z0-9_-]+$'
+
+
+debuge "Rudimentary check that we are in a safe state"
+
+if [[ -n "$(git status | egrep 'unmerged|both modified' | sed -r 's/^(\s.+)$/[0;31m\1[0m/')" ]]; then
+	warne "Conflicts identified."
+	faile "gitn cannot operate on this state."
+fi
+
+# ======
+# This will gather arguments, but also run some actions - position-sensitive!
+#% include runtime/runarguments.sh
+
+if [[ -z "$ACTION" ]] && [[ -z "$ADDFILE" ]]; then
+	if [[ "$FETCHING" = yes ]] && [[ $(git remote | wc -l) -gt 0 ]]; then git fetch; fi
+	git status
+	
+	checkmaster
+	exit 0
+fi
+
+if [[ "$ACTION" = commit ]]; then
+	checkmaster
+	git add $ADDFILE
+	if [[ -z "$COMMIT" ]]; then
+		git commit
+	else
+		git commit -m "$COMMIT"
+	fi
+elif [[ "$ACTION" = add ]]; then
+	checkmaster
+	git add $ADDFILE
+else
+	for cfile in $ADDFILE; do
+		if [[ -d "$cfile" ]]; then
+			echo "Skipping directory [$cfile]"
+			continue
+		fi
+		git diff "$cfile" | sed -r -e 's//^[/g' -e "s/^(-.*)$/${CRED}\1${CDEF}/" -e "s/^(\+.*)$/${CGRN}\1${CDEF}/" -e "s/^(@@.+)$/${CBLU}\1${CDEF}/" | less -R
+	done
+fi
