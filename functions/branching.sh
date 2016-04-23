@@ -1,5 +1,7 @@
 #!/bin/bash
 
+branchpat='^[a-zA-Z0-9_-]+$'
+
 function switchchangestobranch {
 	local dash="$-"; set -e
 

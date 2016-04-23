@@ -23,7 +23,6 @@ COMMIT=
 ACTION=
 FETCHING=yes
 CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
-branchpat='^[a-zA-Z0-9_-]+$'
 
 
 debuge "Rudimentary check that we are in a safe state"
