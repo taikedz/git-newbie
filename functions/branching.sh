@@ -16,14 +16,14 @@ function switchchangestobranch {
 	elif [[ ! "$gotobranch" =~ $branchpat ]]; then
 		faile "Invalid branch [$gotobranch]"
 	fi
-	infoe "Creating master backup"
-	givemaster
+	infoe "Creating $CURBRANCH backup"
+	tarbranch
 	git stash
 	git checkout "$gotobranch"
-	infoe "Creating $gotobranch backup" # Sometimes the automerge is catastrophically bad - notably on large changes
-	givebranch "$gotobranch"
-	git stash apply
 	CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
+	infoe "Creating $CURBRANCH backup" # Sometimes the automerge is catastrophically bad - notably on large changes
+	tarbranch
+	git stash apply
 
 	if [[ ! $dash =~ e ]]; then set +e; fi
 }

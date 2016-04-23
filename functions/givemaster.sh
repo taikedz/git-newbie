@@ -9,12 +9,26 @@ function givebranch {
 	local oldbranch=$CURBRANCH
 
 	switchbranch $tbranch
-	if [[ ${1+x} = x ]]; then local mytmp=$1
 	local tgtdir=$(myprojdir)
-	else local mytmp="$(mktemp --tmpdir "$tbranch-$(basename "$tgtdir")-XXX.tgz")"; fi
-	tar -czf "$mytmp" -C "$tgtdir" ./ --exclude='./.git*'
+	if [[ ${1+x} = x ]]; then
+		local mytmp=$1
+	else
+		local mytmp="$(mktemp --tmpdir "$tbranch-$(basename "$tgtdir")-XXX.tgz")"
+	fi
+	tarnow "$mytmp" "$tgtdir"
 	switchbranch "$oldbranch"
 	infoe "Wrote branch [$tbranch] contents to $mytmp"
+}
+
+function tarbranch {
+	local tgtdir=$(myprojdir)
+	local mytmp="$(mktemp --tmpdir "$CURBRANCH-$(basename "$tgtdir")-XXX.tgz")"
+	tarnow "$mytmp" "$tgtdir"
+	infoe "Wrote branch [$CURBRANCH] contents to $mytmp"
+}
+
+function tarnow {
+	tar -czf "$1" -C "$2" ./ --exclude='./.git*'
 }
 
 function myprojdir {
