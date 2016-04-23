@@ -1,0 +1,5 @@
+test/
+release-cand/
+.*.swp
+.swp
+make-install.sh
