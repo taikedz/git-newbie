@@ -32,7 +32,7 @@ function switchbranch {
 	local newbranch=$1; shift
 
 	if ! (git branch|grep "$newbranch" >/dev/null); then
-		uconfirm "'$newbranch' does not exits. Create it?" && {
+		uconfirm "'$newbranch' does not exist. Create it?" && {
 			if [[ "$newbranch" =~ $branchpat ]]; then
 				git branch "$newbranch"
 			else
