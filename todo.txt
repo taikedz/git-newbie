@@ -20,3 +20,30 @@ See some extra tips:
 
 * [git tips and tricks](http://geant.cern.ch/content/git-tips-and-tricks)
 * [19 git tips for everyday use](http://www.alexkras.com/19-git-tips-for-everyday-use/)
+
+## How to rename a branch locally and remotely
+
+[Benjamin Haas](http://www.benjaminlhaas.com/blog/locally-and-remotely-renaming-branch-git)
+
+First, you want to change your local branch. This couldn't be easier:
+
+	git branch -m my-hot-feature feature-15
+
+Then, you want to change the remote branch. This is a bit more complex, because you can't directly rename the remote branch. Instead you have to delete the remote branch with the old name, and recreate it with the new name. You need to start by getting the remote name:
+
+	git remote -v
+
+This should give you something like this:
+
+	origin https://github.com/benjaminlhaas/Yii-with-Users-and-Rights (fetch)
+	origin https://github.com/benjaminlhaas/Yii-with-Users-and-Rights (push)
+
+The remote name here is "origin." So now that you know this, you can delete and re-create the remote branches.
+
+Delete the remote branch with the old name:
+
+	git push origin :my-hot-feature
+
+Re-create the remote branch with the new name:
+
+	git push origin feature-15
