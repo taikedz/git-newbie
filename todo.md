@@ -1,4 +1,4 @@
-Things that need doing
+# Things that need doing
 
 Some of these items shouuld be in help, others can be part of the automation.
 
@@ -6,15 +6,19 @@ Need to be able to preempt when switching to a new branch will cause auto-merge.
 
 One way is to systematically `git stash branch <autogen-name>` to create a new branch and apply the stash there, and provide instructions on how to go to other branch and rebase of this stash
 
-* delete branches
+* other common operations
+	* rename files
+	* delete files
+	* support unstaging
+	* delete branches
+* rename branches
 * supprt blames and resets
-* support commit ammending
-* support unstaging
 * display "branch -a" and "branch --merged" when on master (or can we only display branches coming off of current branch?)
 * support log reading in less
 * add byte formatting to documentation
 	* underscore
 	* bold
+* git ssh setup assistance
 
 See some extra tips:
 
