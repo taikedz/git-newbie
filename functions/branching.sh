@@ -5,11 +5,13 @@ branchpat='^[a-zA-Z0-9_-]+$'
 function switchchangestobranch {
 	local dash="$-"; set -e
 
-	gotobranch=$(echo $(uchoose "Which branch should ALL tracked and uncommitted changes be moved to?" "$(git branch|egrep -v '^\* ')"))
+	local gotobranch=$(echo $(uchoose "Which branch should ALL tracked and uncommitted changes be moved to?" "$(git branch|egrep -v '^\* ')"))
 	# extra echo wrap to remove trailing whitespaces
 	if [[ -z "$gotobranch" ]]; then
 		if uconfirm "Nothing selected. Create a new branch?" ; then
-			if ! (git branch "$(uask "Name of new branch")" ); then faile "Aborting switch"; fi
+			gotobranch=$(uask "Name of new branch")
+			if [[ ! "$gotobranch" =~ $branchpat ]]; then faile "Invalid new branch name"; fi
+			if ! (git branch "$gotobranch" ); then faile "Aborting switch"; fi
 		elif ! (uconfirm "Proceed anyway?"); then
 			faile "Ran away!"
 		fi
