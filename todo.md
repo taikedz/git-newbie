@@ -51,3 +51,25 @@ Delete the remote branch with the old name:
 Re-create the remote branch with the new name:
 
 	git push origin feature-15
+
+## Pull lots
+
+If you are in a directory mydir/ containing git repositories `mydir/a`, `mydir/b`, `mydir/c` -- you can run the following to checkup on each repo's state
+
+Somehow this could be integrated in some sort of "extra tools" app, along with SSH renaming?
+
+	for x in colours bashout askuser; do source "$BBPATH/$x.source"; done
+	for x in ./*; do
+		[[ -d "$x/.git" ]] && (
+			echo "$x"
+			cd "$x"
+			(git remote -v|grep 'github.com' -q) || exit
+			
+			gitn &&
+				uconfirm "Pull?" &&
+				gitn -l &&
+				git status &&
+				uconfirm "Push?" &&
+				gitn -s
+		)
+	done
