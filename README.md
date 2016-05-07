@@ -2,7 +2,15 @@
 
 `gitn` is a helpful wrapper for working with git.
 
-It started out as a simple shortcut for adding and committing at the same time without having to re-write commands between diffs and commit instructions, but recently has grown to be a minor molly-guard to some bad beginners' habits.
+It acts as a single, easy-to-use command for new users of git to get the most out of the basics, and acts as a molly-guard against some bad newbie development practices.
+
+## Installing
+
+	git clone https://github.com/taikedz/git-newbie
+	cd git-newbie
+	sudo ./release/git-newbie-1.0.1.tgz.sh # self-extracting installer
+
+After this, the `gitn` command is installed and ready to use.
 
 ## `master` warnings
 
@@ -14,17 +22,13 @@ This also kicks in prior to staging and committing.
 
 Don't develop on master!
 
-### Pre-automerge backups
+### Pre-merge backups
 
 The facility to move changes from one branch to another uses a `git stash ; git checkout BRANCH ; git stash apply`
 
 When large amounts of changes have been performed, the auto-merge on `git stash apply` tends to be atrocious - it was not meant for larges swathes of changes. `gitn` mitigates disastrous stash application by creating a tar backup both of the original branch and the destination branch prior to applying the stash, shuold the files get mangled.
 
-On the to-do list is adding similar safeguards around merging, pulling, rebasing, etc.
-
-## Installing
-
-Run `sudo ./bbmake --install` to install the latest version
+The `gitn --merge` task also benefits from this: when performing the merge, gitn will fist create a `.tar.gz` archive in the temp folder, before performing the merge.
 
 ## Useful features
 
