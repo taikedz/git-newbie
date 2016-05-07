@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# need to also consider - merge and rollback
+# need to also consider -  rollback
 
 while [[ -n "$@" ]]; do
 	ARG=$1
@@ -37,10 +37,11 @@ while [[ -n "$@" ]]; do
 		git pull origin "$CURBRANCH"
 		exit $?
 		;;
-	-u|--rebase)
-		if [[ -z "$*" ]]; then faile "Specify a branch to rebase from"; fi
-		infoe "rebasing [$CURBRANCH] to [$1]"
-		git rebase "$1"
+	-u|--merge)
+		if [[ -z "$*" ]]; then faile "Specify a branch to merge from"; fi
+		tarbranch
+		infoe "merging [$1] into [$CURBRANCH]"
+		git merge "$1"
 		exit $?
 		;;
 	--pushmaster)
@@ -51,7 +52,7 @@ while [[ -n "$@" ]]; do
 		if [[ -n "$*" ]]; then
 			givemaster "$1"
 		else
-			givemaster
+			givemaster # auto temp file
 		fi
 		exit $?
 		;;

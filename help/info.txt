@@ -12,12 +12,12 @@ License: GPLv3 https://www.gnu.org/licenses/gpl-3.0.html
 
 TL;DR : GPL Licensing focuses on the freedom of users, not the freedom of developers and software publishers to restrict and enslave users. Therefore:
 
-* You can use this software for any purpose
-* You can change it and distribute your changes as you see fit
+* You may use this software for any purpose
+* You may give this software to anyone
+* You may change it and distribute your changes as you see fit
 * You must retain this copyright and license notice
 * You must deliver the source code of any binary you distribute in usable form to anybody who asks
-	* Obfuscated source code is not considered source code under this license.
-
+	* Obfuscated/minified code is not considered source code under this license.
 
 
 ---	USAGE
@@ -40,39 +40,39 @@ gitn FILES ... -a
 
 gitn { FILES ... | "." } -m [MESSAGE ...]
 
-	If FILES are specified, adds and commits those files, as well as any currently staged files.
+	Commit all staged files with MESSAGE.
+
+	If FILES are specified, adds them.
 
 	If "." is specified instead of a list of files, adds all unstaged changes, and commits them with the message.
 
-	Will warn of operating on master
+	Will warn of operating on master, and offer to move files to a different branch before proceeding.
 
 gitn [-l|--pull]
 
-	Pull remote data from origin
+	Pull remote data from origin.
 
 gitn [-s|--push]
 
-	Push current commit state to origin
+	Push current commit state to origin.
 
 gitn {-b|--branch} BRANCH
 
-	Switch to specified branch. If branch does not yet exist, you are prompted to create it.
+	Switch to specified branch. If BRANCH does not yet exist, you are prompted to create it.
 
 gitn {-r|--rebranch} BRANCH
 
 	Move current tracked and unstaged changes to a different branch BRANCH. Does not affect currently untracked files.
 
-gitn {-u|--rebase} BRANCH
+gitn {-u|--merge} BRANCH
 
-	Rebase current branch on the specified branch
+	Merge BRANCH into the current branch (produces a TAR of the current state before perfomring the merge).
 
 gitn --pushmaster
 
-	Push committed changes in current branch to master, and push both to origin
+	Push committed changes in current branch to master, and push both to origin.
 
 gitn --givemaster [OUTFILE]
 
-	Produce a .tar.gz file of the master branch of this project, without the `.git` elements
-
-	rebase current branch off of BRANCH
+	Produce a .tar.gz file of the master branch of this project, without the .git tracking directory.
 

@@ -44,9 +44,7 @@ function switchbranch {
 	fi
 	git checkout "$newbranch"
 	CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
-	if [[ "$CURBRANCH" = master ]]; then
-		warne "Consider doing a merge"
-	else
-		warne "Consider performing a rebase"
+	if [[ "$CURBRANCH" != master ]]; then
+		infoe "Consider merging master into $CURRBRANCH (\`gitn -u master\`)"
 	fi
 }
