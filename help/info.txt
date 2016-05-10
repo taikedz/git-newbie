@@ -12,12 +12,15 @@ License: GPLv3 https://www.gnu.org/licenses/gpl-3.0.html
 
 TL;DR : GPL Licensing focuses on the freedom of users, not the freedom of developers and software publishers to restrict and enslave users. Therefore:
 
-* You may use this software for any purpose
-* You may give this software to anyone
-* You may change it and distribute your changes as you see fit
+* You may run this software for any purpose
+* You may redistribute this software to anyone
+* You may modify this software and distribute your changes as you see fit
+* You must grant the same permissions as this license, or any additional permissions not conflicting with this license, to your users
 * You must retain this copyright and license notice
-* You must deliver the source code of any binary you distribute in usable form to anybody who asks
-	* Obfuscated/minified code is not considered source code under this license.
+* You may add your name to the copyright list for your version, but must not remove previous authors
+* You must deliver the source code of any binary you distribute in human-readable form to anybody who asks
+	* Obfuscated/minified code is not considered source code under this license
+	* Maintain your copy of the source: if your upstream disappears, you must still be able to provide the source for your version
 
 
 ---	USAGE
