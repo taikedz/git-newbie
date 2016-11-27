@@ -25,7 +25,7 @@ function switchchangestobranch {
 	CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
 	infoe "Creating $CURBRANCH backup" # Sometimes the automerge is catastrophically bad - notably on large changes
 	tarbranch
-	git stash apply
+	git stash pop
 
 	if [[ ! $dash =~ e ]]; then set +e; fi
 }
