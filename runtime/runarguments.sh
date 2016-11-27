@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# need to also consider -  rollback
+# ..... MESSY....!
 
 while [[ -n "$@" ]]; do
 	ARG=$1
@@ -9,6 +9,14 @@ while [[ -n "$@" ]]; do
 	case "$ARG" in
 	--debug)
 		MODE_DEBUG=yes
+		;;
+	-c|--clone)
+		git clone "$@"
+		exit $?
+		;;
+	-t|--remote)
+		git remote -v
+		exit $?
 		;;
 	-b|--branch)
 		switchbranch "$1"; shift
@@ -28,13 +36,25 @@ while [[ -n "$@" ]]; do
 		FETCHING=no
 		;;
 	-s|--push)
-		infoe "git push origin $CURBRANCH"
-		git push origin "$CURBRANCH"
+		origin=origin
+		if [[ -n "$*" ]]; then
+			origin=$1
+		fi
+		infoe "git push $origin $CURBRANCH"
+		git push $origin "$CURBRANCH"
 		exit $?
 		;;
 	-l|--pull)
-		infoe "git pull origin $CURBRANCH"
-		git pull origin "$CURBRANCH"
+		origin=origin
+		if [[ -n "$*" ]]; then
+			origin=$1
+		fi
+		infoe "git pull $origin $CURBRANCH"
+		git pull $origin "$CURBRANCH"
+		exit $?
+		;;
+	-g|--log)
+		git log
 		exit $?
 		;;
 	-u|--merge)
