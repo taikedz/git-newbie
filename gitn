@@ -6,17 +6,17 @@
 #
 ###
 
-#% bundle help/info.txt
+#%include help/info.sh
 
 if [[ "$*" =~ --help ]]; then
-	cat help/info.txt
+	displayhelp
 	exit 0
 fi
 
 # ======
 # Import items that include useful tools/functionality
-#% include bashout askuser
-#% include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh
+#%include bashout askuser
+#%include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh
 
 ADDFILE=
 COMMIT=
@@ -34,7 +34,7 @@ fi
 
 # ======
 # This will gather arguments, but also run some actions - position-sensitive!
-#% include runtime/runarguments.sh
+#%include runtime/runarguments.sh
 
 if [[ -z "$ACTION" ]] && [[ -z "$ADDFILE" ]]; then
 	if [[ "$FETCHING" = yes ]] && [[ $(git remote | wc -l) -gt 0 ]]; then git fetch; fi
