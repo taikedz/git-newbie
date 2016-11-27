@@ -27,9 +27,9 @@ function switchtossh {
 
 		if [[ "$url" =~ /$TARGETUSER/ ]]; then
 			if [[ "$*" =~ --dry-run ]]; then
-				echo "$origin $(git remote -v|grep fetch|cut -f2) -> ssh://$TARGETUSER@$url"
+				echo "$origin $(git remote -v|grep fetch|cut -f2) -> ssh://git@$url"
 			else
-				echo "(cd '$mydir'; git remote set-url $origin 'ssh://$TARGETUSER@$url')"
+				echo "(cd '$mydir'; git remote set-url $origin 'ssh://git@$url')"
 			fi
 		else
 			[[ "$*" =~ --dry-run ]] && echo "... skipped $(basename $PWD)"
