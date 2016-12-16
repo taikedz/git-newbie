@@ -6,6 +6,7 @@ import re
 
 gitbin = "/usr/bin/git" # TODO make a settings loading section and a settings object
 
+
 # =============== OS calls
 
 def dorun(cmdarr):
@@ -19,6 +20,14 @@ def dorun(cmdarr):
         return (result[1],) # TODO item 2 in the tuple should be the stdout of the process
 
 def matchrun(cmdarr,pattern_string):
+    '''
+    check
+
+        from subprocess import Popen, PIPE
+        cmd = 'blah'
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+    '''
     stdout_lines = os.popen(' '.join(cmdarr) )
     reslines = []
     for sline in stdout_lines:
