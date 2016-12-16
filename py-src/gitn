@@ -1,0 +1,64 @@
+#!/usr/bin/python
+
+from sys import argv
+import os
+import re
+
+gitbin = "/usr/bin/git" # TODO make a settings loading section and a settings object
+
+# =============== OS calls
+
+def dorun(cmdarr):
+    fid = os.fork()
+
+    if fid == 0:
+        os.execv(cmdarr[0],cmdarr)
+
+    else:
+        result = os.waitpid(fid,0)
+        return (result[1],) # TODO item 2 in the tuple should be the stdout of the process
+
+def matchrun(cmdarr,pattern_string):
+    stdout_lines = os.popen(' '.join(cmdarr) )
+    reslines = []
+    for sline in stdout_lines:
+        m = re.match(pattern_string,sline[:-1])
+        if m:
+            reslines.append( sline )
+
+    return reslines
+
+# =========== git shorthand calls
+
+def gitgenarr(cmdarr):
+
+    if type(cmdarr) == str:
+        cmdarr = [gitbin,cmdarr]
+
+    else:
+        cmdarr.insert(0, gitbin)
+
+    return cmdarr
+
+def gitmatch(cmdarr,patstring):
+    cmdarr = gitgenarr(cmdarr)
+    return matchrun(cmdarr,patstring)
+
+def gitrun(cmdarr):
+    cmdarr = gitgenarr(cmdarr)
+    dorun(cmdarr)
+
+# ====================
+
+if len(argv) > 1:
+    gitrun(argv[1:])
+
+else:
+    gitrun("fetch")
+    outlines = gitmatch("status","modified")
+    if len(outlines) > 0:
+        print "Changes detected"
+        for x in outlines:
+            print x
+    else:
+        print "All OK"
