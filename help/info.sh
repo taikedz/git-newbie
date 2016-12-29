@@ -5,7 +5,7 @@ cat <<ENDOFHELP
      gitn
 =========================
 
-VERSION 2016-11-27-HK
+VERSION 2016-12-29
 
 Shorthands for managing git repositories, and some guided automation around common pitfalls
 
@@ -30,21 +30,21 @@ TL;DR : GPL Licensing focuses on the freedom of users, not the freedom of develo
 
 ---	USAGE
 
-gitn will tell you whether you have been working on master and allow you to move current changes to a different branch
+gitn will tell you whether you have been working on master during standard checks.
+
+gitn will often pull new fetch data on run; turn this off by running with "-nf" option
 
 gitn
 
-	gitn on its own will perform `git fetch` and `git status`
+	gitn on its own will perform \`git fetch\` and \`git status\`
 
 gitn FILES ...
 
-	gitn stated without actions will display each specified file in turn, and show changes in `less` using coloured output.
+	gitn stated without actions will display each specified file in turn, and show changes in \`less\` using coloured output.
 
 gitn FILES ... -a
 
 	This will cause "git add" to be called on the files
-
-	Will warn of operating on master.
 
 gitn { FILES ... | "." } -m [MESSAGE ...]
 
@@ -54,15 +54,30 @@ gitn { FILES ... | "." } -m [MESSAGE ...]
 
 	If "." is specified instead of a list of files, adds all unstaged changes, and commits them with the message.
 
-	Will warn of operating on master, and offer to move files to a different branch before proceeding.
-
-gitn [-l|--pull]
+gitn {-l|--pull}
 
 	Pull remote data from origin.
 
-gitn [-s|--push]
+gitn {-s|--push}
 
 	Push current commit state to origin.
+
+gitn {--log}
+
+	Show the git log
+
+gitn {-t|--remote} [REMOTE [URL] ]
+
+	Without extra arguments, displays the remotes.
+	If a remote is specified alone, displays all lines matching the remote name
+	If a remote is specified with a URL, the URL is assigned to that remote tag.
+		When setting a URL, if the remote does not exist, it is created
+
+gitn {-gh|--github} NAME [DESC]
+
+	Creates a repository on github.com using the name NAME and the optional description.
+	You will be asked for your github user name, and password.
+	Requires curl installed
 
 gitn {-b|--branch} BRANCH
 

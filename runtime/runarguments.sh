@@ -10,12 +10,36 @@ while [[ -n "$@" ]]; do
 	--debug)
 		MODE_DEBUG=yes
 		;;
-	-c|--clone)
-		git clone "$@"
+	-gh|--github)
+		if !{ which curl >/dev/null ; }; then
+			faile "Cannot find curl -- abort"
+		fi
+		if [[ -n "$*" ]]; then
+			NEWREPO="$1" ; shift
+			DESC="$*"
+			uname=$(uask "username")
+			curl -u "$uname" "https://api.github.com/user/repos" -d "{\"name\":\"$NEWREPO\", \"description\":\"$DESC\" }"
+		else
+			faile "No repository specified"
+		fi
 		exit $?
 		;;
 	-t|--remote)
-		git remote -v
+		if [[ -n "$*" ]]; then
+			newremote="$1"; shift
+			if [[ -n "$*" ]]; then
+				rurl="$1"; shift
+			else
+				git remote -v | grep "$newremote"
+			fi
+			if { git remote | grep "$newremote" -q ;}; then
+				git remote set-url "$newremote" "$rurl"
+			else
+				git remote add "$newremote" "$rurl"
+			fi
+		else
+			git remote -v
+		fi
 		exit $?
 		;;
 	-b|--branch)
