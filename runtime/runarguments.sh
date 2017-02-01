@@ -11,7 +11,7 @@ while [[ -n "$@" ]]; do
 		MODE_DEBUG=yes
 		;;
 	-gh|--github)
-		if !{ which curl >/dev/null ; }; then
+		if ! { which curl >/dev/null ; }; then
 			faile "Cannot find curl -- abort"
 		fi
 		if [[ -n "$*" ]]; then
