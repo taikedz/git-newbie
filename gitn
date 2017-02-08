@@ -1,17 +1,6 @@
 #!/bin/bash
 
-### Git Shorthands Usage:help
-#
-# Some shorthands for managing git repositories.
-#
-###
-
 #%include help/info.sh
-
-if [[ "$*" =~ --help ]]; then
-	displayhelp
-	exit 0
-fi
 
 # ======
 # Import items that include useful tools/functionality
@@ -34,6 +23,7 @@ fi
 
 # ======
 # This will gather arguments, but also run some actions - position-sensitive!
+# FIXME - so dirty :-(
 #%include runtime/runarguments.sh
 
 if [[ -z "$ACTION" ]] && [[ -z "$ADDFILE" ]]; then
