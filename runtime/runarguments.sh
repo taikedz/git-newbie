@@ -43,7 +43,11 @@ while [[ -n "$@" ]]; do
 		exit $?
 		;;
 	-b|--branch)
-		switchbranch "$1"; shift
+		if [[ -n "$1" ]]; then
+			switchbranch "$1"; shift
+		else
+			listbranches
+		fi
 		;;
 	-r|--rebranch)
 		switchchangestobranch "$1"; shift

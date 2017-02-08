@@ -32,6 +32,9 @@ function switchchangestobranch {
 
 function switchbranch {
 	local newbranch=$1; shift
+	if [[ -z "$newbranch" ]]; then
+		faile "No branch given"
+	fi
 
 	if ! (git branch|grep "$newbranch" >/dev/null); then
 		uconfirm "'$newbranch' does not exist. Create it?" && {
@@ -47,4 +50,9 @@ function switchbranch {
 	if [[ "$CURBRANCH" != master ]]; then
 		infoe "Consider merging master into $CURBRANCH (\`gitn -u master\`)"
 	fi
+}
+
+function listbranches {
+	git branch --list
+	exit $?
 }
