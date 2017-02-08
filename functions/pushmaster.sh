@@ -1,10 +1,10 @@
 #!/bin/bash
 
-### Push Master Usage:help
+### Push Master Usage:api
 #
 # The pushmaster command automatically switches to master, merges the changes of your branch, pushes it to the first defined push-remote, and returns you to your branch
 #
-###
+###/doc
 
 function pushmaster {
 	local backbranch=$CURBRANCH
