@@ -73,3 +73,7 @@ Somehow this could be integrated in some sort of "extra tools" app, along with S
 				gitn -s
 		)
 	done
+
+## Add patch file generation
+
+https://ariejan.net/2009/10/26/how-to-create-and-apply-a-patch-with-git/
