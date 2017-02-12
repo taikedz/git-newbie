@@ -1,4 +1,5 @@
 test/
+build-outd/
 release-cand/
 .*.swp
 .swp
