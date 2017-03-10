@@ -82,7 +82,22 @@ while [[ -n "$@" ]]; do
 		exit $?
 		;;
 	-g|--log)
-		git log
+		if [[ -z "$*" ]]; then
+			git log
+		else
+			for thefile in "$@"; do
+				if [[ -f "$thefile" ]]; then
+					git log -p "$thefile"| sed -r -e 's//^[/g' -e "s/^(-.*)$/${CRED}\1${CDEF}/" -e "s/^(\+.*)$/${CGRN}\1${CDEF}/" -e "s/^(@@.+)$/${CBLU}\1${CDEF}/"|less -R
+
+				elif [[ "$thefile" =~ $(echo "^--") ]]; then
+					# Ignore would-be options
+					continue
+
+				else
+					warne "Not a file [$thefile]"
+				fi
+			done
+		fi
 		exit $?
 		;;
 	-u|--merge)
