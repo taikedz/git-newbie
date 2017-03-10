@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if ! which bbuild3 2>&1 >/dev/null ; then
+	git clone https://github.com/taikedz/bash-builder
+	( cd bash-builder ; ./install )
+fi
+
+bins=$HOME/.local/bin/
+if [[ "$UID" = 0 ]]; then
+	bins=/usr/local/bin
+fi
+
+outdir=$bins bbuild3 gitn
