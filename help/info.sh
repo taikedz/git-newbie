@@ -99,4 +99,4 @@
 # 	* Maintain your copy of the source: if your upstream disappears, you must still be able to provide the source for your version
 ###/doc 
 
-#%include autohelp
+#%include autohelp.sh
