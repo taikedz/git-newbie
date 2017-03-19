@@ -1,0 +1,113 @@
+# New spec for python implementation of gitn
+
+## Commands to support
+
+### Core
+
+	gitn
+		fetch (unless GITN_NOFETCH is non-nil) and display status
+		If project type is rolling, warn if on master
+		If project type is releasing, do not warn
+		Warn if no identity present
+
+	gitn FILE ...
+		coloured git-diff of the specified files, each piped through less
+
+	gitn FILES ... -m [-s] [MESSAGE]
+		commit FILES and get an editor to edit the commit
+		commit FILES with the MESSAGE
+		use "-s" after "-m" to add signoff
+	
+### Essential
+
+	gitn pull [-r REMOTE] [-b BRANCH]
+		pull, optionally modify remote, optionally modify branch
+
+	gitn push [-r REMOTE] [-b BRANCH]
+		push, optionally modify remote, optionally modify branch
+
+	gitn remote [ ORIGIN [ URL | RPATTERN ] ]
+		list remotes
+		list url of ORIGIN
+		set URL of ORIGIN or use RPATTERN to s/// rewrite the URL
+
+	gitn branch [ BRANCH ]
+		list branches
+		move to branch BRANCH
+
+### Important
+
+	gitn merge BRANCH
+		pull merge from a branch into the working branch
+
+	gitn stash [ -r BRANCH ]
+		stash local changes
+		optionally move to new branch and pop the stash
+
+	gitn init REPO [ FILESETS ... ]
+		create a new repo with optional initial filesets
+		filesets are kept in ~/.local/lib/gitn/filesets
+
+	gitn log [ FILE ]
+		show the git log, coloured, in less
+		show the change history of the file
+
+### Nice to have
+	
+	gitn id [--global] NAME "," EMAIL
+		set the identity of the user
+
+	gitn clone REPOS ...
+		clone a series of repositories
+		A repo can be a URL, or a <DIRPATH>:<URL> to clone to a specific directory
+
+	gitn create github REPO
+		create a remote repo on github
+		( support for other remotes to come )
+		and set the URL
+
+	gitn version
+		Display the managed version number of the project
+
+	gitn version bump { major | minor | point }
+		Projects have a x.y.z version number.
+		This command bumps the appropriate number up by 1
+		Less significant numbers get reset to zero.
+
+	gitn release [ COMMIT ]
+		Add a tag to the current commit, or the specified COMMIT
+		Always creates an annotated tag.
+		The tag name is taken from the managed version
+
+## Configuration options
+
+### Global configuration
+
+A configuration file in ~/.config/gitn/gitn.conf is create on first use.
+
+Keys to create should be:
+	
+	DEFAULT_SCHEMA={ ssh | https | http}
+		set the default schema when adding URLs
+	
+	DEFAULT_PROJECT_TYPE={ rolling | releasing }
+		Rolling projects need to keep master clean
+		Releasing projects may track version numbers
+	
+### Project configuration
+
+A .gitn file holds the configs for the project. Keys are
+
+	PROJECT_TYPE={ rolling | releasing }
+		Rolling type causes gitn to abort a commit if developing on master
+		Releasing causes no warnings to be shown when developing on master
+		When no project type is set, developing on master causes a warning
+
+	VERSION_NUMBER=X.Y.Z
+		Version number is tracked. Initially set to 0.0.0 on creation
+
+## File Sets
+
+Sets of files that can serve as templates, saved in ~/.local/lib/gitn/filesets/
+
+Each file set is a directory, the contents of which are copied to the root of the fresh repo.
