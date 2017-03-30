@@ -87,7 +87,7 @@ while [[ -n "$@" ]]; do
 		else
 			for thefile in "$@"; do
 				if [[ -f "$thefile" ]]; then
-					git log -p "$thefile"| sed -r -e 's//^[/g' -e "s/^(-.*)$/${CRED}\1${CDEF}/" -e "s/^(\+.*)$/${CGRN}\1${CDEF}/" -e "s/^(@@.+)$/${CBLU}\1${CDEF}/"|less -R
+					git log -p "$thefile"| sed -r -e 's//^[/g' -e "s/^(-.*)$/${CRED}\1${CDEF}/" -e "s/^(\+.*)$/${CGRN}\1${CDEF}/" -e "s/^(@@.+)$/${CBLU}\1${CDEF}/" -e "s/^(commit.+)$/${CBYEL}\1${CDEF}/" |less -R
 
 				elif [[ "$thefile" =~ $(echo "^--") ]]; then
 					# Ignore would-be options
