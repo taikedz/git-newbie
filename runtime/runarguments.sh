@@ -83,7 +83,7 @@ while [[ -n "$@" ]]; do
 		;;
 	-g|--log)
 		if [[ -z "$*" ]]; then
-			git log
+			git log|sed -r -e "s/^(commit.+)$/${CBYEL}\1${CDEF}/" |less -R
 		else
 			for thefile in "$@"; do
 				if [[ -f "$thefile" ]]; then
