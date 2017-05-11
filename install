@@ -10,4 +10,4 @@ if [[ "$UID" = 0 ]]; then
 	bins=/usr/local/bin
 fi
 
-outdir=$bins bbuild3 gitn "$@"
+BUILDOUTD=$bins bbuild gitn "$@"
