@@ -11,6 +11,9 @@ function pushmaster {
 	switchbranch master
 	git merge "$backbranch"
 	local origin=$(git remote -v|grep origin|grep '(push)'|egrep -o '^[a-zA-Z0-9]+'|head -n 1)
+
+	dotags
+
 	if [[ -n "$origin" ]] ; then
 		infoe "Pushing your changes on $backbranch to $origin"
 		git push $origin "$backbranch"

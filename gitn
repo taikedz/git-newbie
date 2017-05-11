@@ -5,7 +5,7 @@
 # ======
 # Import items that include useful tools/functionality
 #%include bashout.sh askuser.sh
-#%include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh
+#%include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh functions/tagging.sh
 
 ADDFILE=
 COMMIT=
