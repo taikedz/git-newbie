@@ -52,8 +52,8 @@ Option to restore archive on inconsistent state
 
 Merge "to" other branch, or pull in "from" branch ; produce a Give archive
 
-	gits -m to BRANCH
-	gits -m from BRANCH
+	gits -u to BRANCH
+	gits -u from BRANCH
 
 ## Shorthands
 
