@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#%include help/info.sh
+#%include info.sh
 
 # ======
 # Import items that include useful tools/functionality
 #%include bashout.sh askuser.sh
-#%include functions/branching.sh functions/pushmaster.sh functions/givemaster.sh functions/checkmaster.sh functions/tagging.sh
+#%include branching.sh pushmaster.sh givemaster.sh checkmaster.sh tagging.sh
 
 ADDFILE=
 COMMIT=
@@ -24,7 +24,7 @@ fi
 # ======
 # This will gather arguments, but also run some actions - position-sensitive!
 # FIXME - so dirty :-(
-#%include runtime/runarguments.sh
+#%include runarguments.sh
 
 if [[ -z "$ACTION" ]] && [[ -z "$ADDFILE" ]]; then
 	if [[ "$FETCHING" = yes ]] && [[ $(git remote | wc -l) -gt 0 ]]; then git fetch; fi
