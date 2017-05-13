@@ -1,0 +1,228 @@
+#!/bin/bash
+
+### gitn Usage:help
+#
+# Shorthands for git workflows
+#
+###/doc
+
+### gitcall Usage:gitn-api
+#
+# Call git, and printout what we're actually doing
+#
+###/doc
+function gitcall { (
+	set -x
+	git "$@"
+) }
+function args_processargs {
+	# Get tokens until we encounter an option or '//'
+	if [[ -n "${GITARGS_action:-}" ]]; then
+		return
+	fi
+
+	local action_default=diff
+
+	local l_GITARGS_files=
+	GITARGS_action="$action_default"
+	local l_GITARGS_arguments=
+
+	for token in "$@"; do
+		if [[ "${token:0:1}" = '-' ]]; then
+			GITARGS_action="$(args_getActionFor "$token")"
+		elif [[ "$token" = '//' ]]; then
+			GITARGS_action=commit
+		else
+			if [[ "$GITARGS_action" = "$action_default" ]]; then
+				GITARGS_files[${#GITARGS_files[@]}]="$token"
+			else
+				GITARGS_arguments[${#GITARGS_arguments[@]}]="$token"
+			fi
+		fi
+
+	done
+
+	GITARGS_files="${l_GITARGS_files[@]:1}"
+	GITARGS_arguments="${l_GITARGS_arguments[@]:1}"
+}
+
+function args_getActionFor {
+	case "$1" in
+		-u)
+			# merge to
+			echo "update" ;;
+		-m)
+			# merge from
+			echo "merge" ;;
+		-l)
+			echo "pull" ;;
+		-s)
+			echo "push" ;;
+		-b)
+			echo "branch" ;;
+		-t)
+			echo "remote" ;;
+		--debug)
+			echo "$GITARGS_action" ;;
+	esac
+}
+#!/bin/bash
+
+#!/bin/bash
+
+### Colours for bash Usage:bbuild
+# A series of colour flags for use in outputs.
+#
+# Example:
+# 	
+# 	echo "${CRED}Some red text ${CBBLU} some blue text $CDEF some text in the terminal's default colour"
+#
+# Colours available:
+#
+# CDEF -- switches to the terminal default
+#
+# CRED, CBRED -- red and bright/bold red
+# CGRN, CBGRN -- green and bright/bold green
+# CYEL, CBYEL -- yellow and bright/bold yellow
+# CBLU, CBBLU -- blue and bright/bold blue
+# CPUR, CBPUR -- purple and bright/bold purple
+#
+###/doc
+
+export CDEF="[0m"
+export CRED="[31m"
+export CGRN="[32m"
+export CYEL="[33m"
+export CBLU="[34m"
+export CPUR="[35m"
+export CBRED="[1;31m"
+export CBGRN="[1;32m"
+export CBYEL="[1;33m"
+export CBBLU="[1;34m"
+export CBPUR="[1;35m"
+
+MODE_DEBUG=no
+
+### debuge MESSAGE Usage:bbuild
+# print a blue debug message to stderr
+# only prints if MODE_DEBUG is set to "yes"
+###/doc
+function debuge {
+	if [[ "$MODE_DEBUG" = yes ]]; then
+		echo -e "${CBBLU}DEBUG:$CBLU$*$CDEF" 1>&2
+	fi
+}
+
+### infoe MESSAGE Usage:bbuild
+# print a green informational message to stderr
+###/doc
+function infoe {
+	echo -e "$CGRN$*$CDEF" 1>&2
+}
+
+### warne MESSAGE Usage:bbuild
+# print a yellow warning message to stderr
+###/doc
+function warne {
+	echo -e "${CBYEL}WARN:$CYEL $*$CDEF" 1>&2
+}
+
+### faile [CODE] MESSAGE Usage:bbuild
+# print a red failure message to stderr and exit with CODE
+# CODE must be a number
+# if no code is specified, error code 127 is used
+###/doc
+function faile {
+	local ERCODE=127
+	local numpat='^[0-9]+$'
+
+	if [[ "$1" =~ $numpat ]]; then
+		ERCODE="$1"; shift
+	fi
+
+	echo "${CBRED}ERROR FAIL:$CRED$*$CDEF" 1>&2
+	exit $ERCODE
+}
+
+function dumpe {
+	echo -n "[1;35m$*" 1>&2
+	echo -n "[0;35m" 1>&2
+	cat - 1>&2
+	echo -n "[0m" 1>&2
+}
+
+function breake {
+	if [[ "$MODE_DEBUG" != yes ]]; then
+		return
+	fi
+
+	read -p "${CRED}BREAKPOINT: $* >$CDEF " >&2
+	if [[ "$REPLY" =~ $(echo 'quit|exit|stop') ]]; then
+		faile "ABORT"
+	fi
+}
+
+### Auto debug Usage:main
+# When included, bashout processes a special "--debug" flag
+#
+# It does not remove the debug flag from arguments.
+###/doc
+
+if [[ "$*" =~ --debug ]]; then
+	MODE_DEBUG=yes
+fi
+
+function action_diff {
+	for thefile in "${GITARGS_files[@]}"; do
+		gitcall diff "$thefile" | sed -r -e 's/^\+(.*)$/[32;1m\1[0m/' -e 's/^-(.*)$/[31;1m\1[0m/'|less -R
+	done
+}
+function action_commit {
+	gitcall add "${GITARGS_files[@]}"
+	
+	if [[ -z "${GITARGS_arguments[*]}" ]]; then
+		gitcall commit
+	else
+		gitcall commit -m "${GITARGS_arguments[*]}"
+	fi
+}
+
+set -x
+
+function main {
+	args_processargs "$@"
+
+	case "$GITARGS_action" in
+	commit)
+		action_commit
+		;;
+	diff)
+		action_diff
+		;;
+	push)
+		action_push
+		;;
+	pull)
+		action_pull
+		;;
+	branch)
+		action_branch
+		;;
+	remote)
+		action_remote
+		;;
+	merge)
+		action_merge
+		;;
+	update)
+		action_update
+		;;
+	*)
+		faile "Action $GITARGS_action not yet available"
+		;;
+	esac
+}
+
+if [[ "$NORUN" != norun ]]; then
+	main "$@"
+fi

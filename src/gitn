@@ -1,56 +1,53 @@
 #!/bin/bash
 
-#%include info.sh
+### gitn Usage:help
+#
+# Shorthands for git workflows
+#
+###/doc
 
-# ======
-# Import items that include useful tools/functionality
-#%include bashout.sh askuser.sh
-#%include branching.sh pushmaster.sh givemaster.sh checkmaster.sh tagging.sh
+#%include git-handling.sh
+#%include arguments.sh
+#%include bashout.sh
 
-ADDFILE=
-COMMIT=
-ACTION=
-FETCHING=yes
-CURBRANCH="$(git branch|grep -P '(?<=\* ).+' -o)"
+#%include actions/diff.sh actions/commit.sh
 
+set -x
 
-debuge "Rudimentary check that we are in a safe state"
+function main {
+	args_processargs "$@"
 
-if [[ -n "$(git status | egrep 'unmerged|both modified' | sed -r 's/^(\s.+)$/[0;31m\1[0m/')" ]]; then
-	warne "Conflicts identified."
-	faile "gitn cannot operate on this state."
-fi
+	case "$GITARGS_action" in
+	commit)
+		action_commit
+		;;
+	diff)
+		action_diff
+		;;
+	push)
+		action_push
+		;;
+	pull)
+		action_pull
+		;;
+	branch)
+		action_branch
+		;;
+	remote)
+		action_remote
+		;;
+	merge)
+		action_merge
+		;;
+	update)
+		action_update
+		;;
+	*)
+		faile "Action $GITARGS_action not yet available"
+		;;
+	esac
+}
 
-# ======
-# This will gather arguments, but also run some actions - position-sensitive!
-# FIXME - so dirty :-(
-#%include runarguments.sh
-
-if [[ -z "$ACTION" ]] && [[ -z "$ADDFILE" ]]; then
-	if [[ "$FETCHING" = yes ]] && [[ $(git remote | wc -l) -gt 0 ]]; then git fetch; fi
-	git status
-	
-	checkmaster
-	exit 0
-fi
-
-if [[ "$ACTION" = commit ]]; then
-	checkmaster
-	git add $ADDFILE
-	if [[ -z "$COMMIT" ]]; then
-		git commit
-	else
-		git commit -m "$COMMIT"
-	fi
-elif [[ "$ACTION" = add ]]; then
-	checkmaster
-	git add $ADDFILE
-else
-	for cfile in $ADDFILE; do
-		if [[ -d "$cfile" ]]; then
-			echo "Skipping directory [$cfile]"
-			continue
-		fi
-		git diff "$cfile" | sed -r -e 's//^[/g' -e "s/^(-.*)$/${CRED}\1${CDEF}/" -e "s/^(\+.*)$/${CGRN}\1${CDEF}/" -e "s/^(@@.+)$/${CBLU}\1${CDEF}/" | less -R
-	done
+if [[ "$NORUN" != norun ]]; then
+	main "$@"
 fi
