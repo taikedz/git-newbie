@@ -6,11 +6,13 @@
 #
 ###/doc
 
-#%include git-handling.sh
+#%include githelpers/calling.sh githelpers/branching.sh
 #%include arguments.sh settings.sh
 #%include bashout.sh
 
-#%include actions/diff.sh actions/commit.sh actions/status.sh actions/fetch.sh
+#%include actions/diff.sh actions/commit.sh
+#%include actions/status.sh actions/fetch.sh
+#%include actions/pull.sh actions/push.sh
 
 function main {
 	settings_load
