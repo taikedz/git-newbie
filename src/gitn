@@ -13,6 +13,7 @@
 #%include actions/diff.sh actions/commit.sh
 #%include actions/status.sh actions/fetch.sh
 #%include actions/pull.sh actions/push.sh
+#%include actions/remote.sh
 
 function main {
 	settings_load
