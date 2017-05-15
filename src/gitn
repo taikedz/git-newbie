@@ -30,14 +30,14 @@ function main {
 		action_push ;;
 	pull)
 		action_pull ;;
-	branch)
-		action_branch ;;
+	#branch)
+	#	action_branch ;;
 	remote)
 		action_remote ;;
-	merge)
-		action_merge ;;
-	update)
-		action_update ;;
+	#merge)
+	#	action_merge ;;
+	#update)
+	#	action_update ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
