@@ -4,7 +4,7 @@ function args_processargs {
 		return
 	fi
 
-	local action_default=diff
+	local action_default=status
 
 	local l_GITARGS_files=
 	GITARGS_action="$action_default"
@@ -13,11 +13,14 @@ function args_processargs {
 	for token in "$@"; do
 		if [[ "${token:0:1}" = '-' ]]; then
 			GITARGS_action="$(args_getActionFor "$token")"
+
 		elif [[ "$token" = '//' ]]; then
 			GITARGS_action=commit
+
 		else
 			if [[ "$GITARGS_action" = "$action_default" ]]; then
 				GITARGS_files[${#GITARGS_files[@]}]="$token"
+				GITARGS_action=diff
 			else
 				GITARGS_arguments[${#GITARGS_arguments[@]}]="$token"
 			fi
