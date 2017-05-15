@@ -1,7 +1,8 @@
 
 function gitn_getRemote {
 	if [[ -z "${1:-}" ]]; then
-		gitcall remote -v|cut -f1|sort|uniq
+		warne Implicitly returning first remote
+		gitcall remote -v|cut -f1|sort|uniq|head -n 1
 	else
 		echo "$1"
 	fi
