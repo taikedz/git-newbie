@@ -13,7 +13,7 @@
 #%include actions/diff.sh actions/commit.sh
 #%include actions/status.sh actions/fetch.sh
 #%include actions/pull.sh actions/push.sh
-#%include actions/remote.sh
+#%include actions/remote.sh actions/branch.sh
 
 function main {
 	settings_load
@@ -30,8 +30,8 @@ function main {
 		action_push ;;
 	pull)
 		action_pull ;;
-	#branch)
-	#	action_branch ;;
+	branch)
+		action_branch ;;
 	remote)
 		action_remote ;;
 	#merge)
