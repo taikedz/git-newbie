@@ -19,10 +19,10 @@ function args_processargs {
 
 		else
 			if [[ "$GITARGS_action" = "$action_default" ]]; then
-				GITARGS_files[${#GITARGS_files[@]}]="$token"
+				l_GITARGS_files[${#l_GITARGS_files[@]}]="$token"
 				GITARGS_action=diff
 			else
-				GITARGS_arguments[${#GITARGS_arguments[@]}]="$token"
+				l_GITARGS_arguments[${#l_GITARGS_arguments[@]}]="$token"
 			fi
 		fi
 
