@@ -7,41 +7,34 @@
 ###/doc
 
 #%include git-handling.sh
-#%include arguments.sh
+#%include arguments.sh settings.sh
 #%include bashout.sh
 
-#%include actions/diff.sh actions/commit.sh
-
-set -x
+#%include actions/diff.sh actions/commit.sh actions/status.sh actions/fetch.sh
 
 function main {
+	settings_load
 	args_processargs "$@"
 
 	case "$GITARGS_action" in
+	status)
+		action_status ;;
 	commit)
-		action_commit
-		;;
+		action_commit ;;
 	diff)
-		action_diff
-		;;
+		action_diff ;;
 	push)
-		action_push
-		;;
+		action_push ;;
 	pull)
-		action_pull
-		;;
+		action_pull ;;
 	branch)
-		action_branch
-		;;
+		action_branch ;;
 	remote)
-		action_remote
-		;;
+		action_remote ;;
 	merge)
-		action_merge
-		;;
+		action_merge ;;
 	update)
-		action_update
-		;;
+		action_update ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

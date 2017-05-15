@@ -18,9 +18,11 @@ function args_processargs {
 			GITARGS_action=commit
 
 		else
-			if [[ "$GITARGS_action" = "$action_default" ]]; then
+			if [[ "$GITARGS_action" = "$action_default" ]] ||
+			   [[ "$GITARGS_action" = diff ]]; then
 				l_GITARGS_files[${#l_GITARGS_files[@]}]="$token"
 				GITARGS_action=diff
+
 			else
 				l_GITARGS_arguments[${#l_GITARGS_arguments[@]}]="$token"
 			fi
@@ -28,8 +30,8 @@ function args_processargs {
 
 	done
 
-	GITARGS_files="${l_GITARGS_files[@]:1}"
-	GITARGS_arguments="${l_GITARGS_arguments[@]:1}"
+	GITARGS_files=("${l_GITARGS_files[@]:1}")
+	GITARGS_arguments=("${l_GITARGS_arguments[@]:1}")
 }
 
 function args_getActionFor {
