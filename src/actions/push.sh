@@ -5,4 +5,9 @@ function action_push {
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
 	gitcall push "$remote" "$branch"
+
+	if [[ "${GSETTING_withtags}" = "true" ]]; then
+		gitcall push "$remote" --tags
+	fi
+		
 }

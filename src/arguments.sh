@@ -12,7 +12,11 @@ function args_processargs {
 
 	for token in "$@"; do
 		if [[ "${token:0:1}" = '-' ]]; then
-			GITARGS_action="$(args_getActionFor "$token")"
+			if [[ "${token:1:1}" = '-' ]]; then
+				arguments_dosetting "$token"
+			else
+				GITARGS_action="$(args_getActionFor "$token")"
+			fi
 
 		elif [[ "$token" = '//' ]]; then
 			GITARGS_action=commit
@@ -34,6 +38,17 @@ function args_processargs {
 	GITARGS_arguments=("${l_GITARGS_arguments[@]:1}")
 }
 
+function arguments_dosetting {
+	case "$1" in
+	--with-tags)
+		GSETTING_withtags=true ;;
+	--no-fetch|--nf)
+		GSETTINNG_nofetch=true ;;
+	*)
+		faile "Unknown setting '$1'"
+	esac
+}
+
 function args_getActionFor {
 	case "$1" in
 		-u)
@@ -52,5 +67,8 @@ function args_getActionFor {
 			echo "remote" ;;
 		--debug)
 			echo "$GITARGS_action" ;;
+		*)
+			faile "Action $1 unknown"
+			;;
 	esac
 }
