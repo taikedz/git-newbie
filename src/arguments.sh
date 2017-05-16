@@ -50,6 +50,8 @@ function arguments_dosetting {
 		export GSETTING_delbranch=true ;;
 	--force)
 		export GSETTING_force=true ;;
+	--debug)
+		: ;;
 	*)
 		faile "Unknown setting '$1'" ;;
 	esac
@@ -79,8 +81,6 @@ function args_getActionFor {
 			echo "remote" ;;
 		-stash)
 			echo "stash" ;;
-		--debug)
-			echo "$GITARGS_action" ;;
 		*)
 			faile "Action $1 unknown"
 			;;
