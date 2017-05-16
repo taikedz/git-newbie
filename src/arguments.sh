@@ -46,6 +46,8 @@ function arguments_dosetting {
 		export GSETTING_nofetch=true ;;
 	--historic)
 		export GSETTING_histdiff=true ;;
+	--delete)
+		export GSETTING_delbranch=true ;;
 	--force)
 		export GSETTING_force=true ;;
 	*)
