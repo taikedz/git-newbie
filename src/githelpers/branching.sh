@@ -1,3 +1,6 @@
+function gitn_choose_branch {
+	uchoose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
+}
 
 function gitn_getRemote {
 	if [[ -z "${1:-}" ]]; then
