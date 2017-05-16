@@ -1,8 +1,12 @@
 
 function gitn_getRemote {
 	if [[ -z "${1:-}" ]]; then
-		warne Implicitly returning first remote
-		git remote -v|cut -f1|sort|uniq|head -n 1
+		if [[ -n "${GSETTING_remote:-}" ]]; then
+			echo "$GSETTING_remote"
+		else
+			warne Implicitly returning first remote
+			git remote -v|cut -f1|sort|uniq|head -n 1
+		fi
 	else
 		echo "$1"
 	fi
