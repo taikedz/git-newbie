@@ -1,15 +1,8 @@
 #!/bin/bash
 
-if ! which bbuild 2>&1 >/dev/null ; then
-	git clone https://github.com/taikedz/bash-builder && (
-		cd bash-builder
-		./install
-	) || exit 1
-fi
-
-bins=$HOME/.local/bin/
+bins="$HOME/.local/bin/"
 if [[ "$UID" = 0 ]]; then
 	bins=/usr/local/bin
 fi
 
-BUILDOUTD=$bins bbuild gitn "$@"
+cp bin/gitn "$bins"

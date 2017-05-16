@@ -6,22 +6,155 @@
 #
 ###/doc
 
+### Git Newbie Usage:help
+#
+# The `gitn` tool offers git users shortcuts for some of the most common
+# operations, as well as some additional features.
+#
+# USAGE
+# -----
+#
+#	gitn FILES ... [--historic]
+#
+# Show the diff of files that have not yet been staged for commit,
+#  or show the last changes to the file
+#
+# ++
+#
+#	gitn FILES ... // [COMMIT MESSAGE]
+#
+# Add and commit the files with the specified commit message
+#
+# ++
+#
+# 	gitn -s [REMOTE [BRANCH]] [--with-tags]
+#
+# Push to the specified remote. If no remote is specified, then the first
+#  remote in `git remote -v` is used, or the one in $GSETTING_remote if
+#  set. See SETTINGS.
+#
+###/doc
+
+### SETTINGS Usage:help
+#
+# A settings file `./.gitn` can be used to pre-populate settings
+#
+# GSETTING_warnmaster
+# 	default: true
+# 	Displays a warning when committing on master
+#
+# GSETTING_remote
+# 	default: (not set)
+# 	The default remote to use when none is specified
+#
+# GSETTING_nofetch
+# 	defaut: false
+# 	By default, `gitn` will try to fetch info from remote
+#
+###/doc
+#!/bin/bash
+
+### printhelp Usage:bbuild
+# Write your help as documentation comments in your script
+#
+# If you need to output the help from a running script, call the
+# `printhelp` function and it will print the help documentation
+# in the current script to stdout
+#
+# A help comment looks like this:
+#
+#	### <title> Usage:help
+#	#
+#	# <some content>
+#	#
+#	# end with "###/doc" on its own line (whitespaces before
+#	# and after are OK)
+#	#
+#	###/doc
+#
+###/doc
+
+CHAR='#'
+
+function printhelp {
+	local USAGESTRING=help
+	local TARGETFILE=$0
+	if [[ -n "$*" ]]; then USAGESTRING="$1" ; shift; fi
+	if [[ -n "$*" ]]; then TARGETFILE="$1" ; shift; fi
+
+        echo -e "\n$(basename "$TARGETFILE")\n===\n"
+        local SECSTART='^\s*'"$CHAR$CHAR$CHAR"'\s+(.+?)\s+Usage:'"$USAGESTRING"'\s*$'
+        local SECEND='^\s*'"$CHAR$CHAR$CHAR"'\s*/doc\s*$'
+        local insec="$(mktemp --tmpdir)"; rm "$insec"
+        cat "$TARGETFILE" | while read secline; do
+                if [[ "$secline" =~ $SECSTART ]]; then
+                        touch "$insec"
+                        echo -e "\n${BASH_REMATCH[1]}\n---\n"
+                elif [[ -f $insec ]]; then
+                        if [[ "$secline" =~ $SECEND ]]; then
+                                rm "$insec"
+                        else
+				echo "$secline" | sed -r "s/^\s*$CHAR//g"
+                        fi
+                fi
+        done
+        if [[ -f "$insec" ]]; then
+                echo "WARNING: Non-terminated help block." 1>&2
+		rm "$insec"
+        fi
+	echo ""
+}
+
+### automatic help Usage:main
+#
+# automatically call help if "--help" is detected in arguments
+#
+###/doc
+if [[ "$@" =~ --help ]]; then
+	printhelp
+	exit 0
+fi
+
 ### gitcall Usage:gitn-api
 #
 # Call git, and printout what we're actually doing
 #
 ###/doc
-function gitcall { (
-	set -x
+function gitcall {
+	breake "git $@"
 	git "$@"
-) }
+}
+
+function gitn_getRemote {
+	if [[ -z "${1:-}" ]]; then
+		if [[ -n "${GSETTING_remote:-}" ]]; then
+			echo "$GSETTING_remote"
+		else
+			warne Implicitly returning first remote
+			git remote -v|cut -f1|sort|uniq|head -n 1
+		fi
+	else
+		echo "$1"
+	fi
+}
+
+function gitn_getBranch {
+	if [[ -z "${2:-}" ]]; then
+		git branch --list|egrep '^\*'|cut -d' ' -f2
+	else
+		echo "$2"
+	fi
+}
+function gitn_last_commit {
+	git log | grep ^commit|head -n 1|cut -d' ' -f2
+}
 function args_processargs {
 	# Get tokens until we encounter an option or '//'
 	if [[ -n "${GITARGS_action:-}" ]]; then
 		return
 	fi
 
-	local action_default=diff
+	local action_default=status
 
 	local l_GITARGS_files=
 	GITARGS_action="$action_default"
@@ -29,42 +162,101 @@ function args_processargs {
 
 	for token in "$@"; do
 		if [[ "${token:0:1}" = '-' ]]; then
-			GITARGS_action="$(args_getActionFor "$token")"
+			if [[ "${token:1:1}" = '-' ]]; then
+				arguments_dosetting "$token"
+			else
+				GITARGS_action="$(args_getActionFor "$token")"
+			fi
+
 		elif [[ "$token" = '//' ]]; then
 			GITARGS_action=commit
+
 		else
-			if [[ "$GITARGS_action" = "$action_default" ]]; then
-				GITARGS_files[${#GITARGS_files[@]}]="$token"
+			if [[ "$GITARGS_action" = "$action_default" ]] ||
+			   [[ "$GITARGS_action" = diff ]]; then
+				l_GITARGS_files[${#l_GITARGS_files[@]}]="$token"
+				GITARGS_action=diff
+
 			else
-				GITARGS_arguments[${#GITARGS_arguments[@]}]="$token"
+				l_GITARGS_arguments[${#l_GITARGS_arguments[@]}]="$token"
 			fi
 		fi
 
 	done
 
-	GITARGS_files="${l_GITARGS_files[@]:1}"
-	GITARGS_arguments="${l_GITARGS_arguments[@]:1}"
+	GITARGS_files=("${l_GITARGS_files[@]:1}")
+	GITARGS_arguments=("${l_GITARGS_arguments[@]:1}")
+}
+
+function arguments_dosetting {
+	case "$1" in
+	--with-tags)
+		export GSETTING_withtags=true ;;
+	--no-fetch|--nf)
+		export GSETTING_nofetch=true ;;
+	--historic)
+		export GSETTING_histdiff=true ;;
+	--delete)
+		export GSETTING_delbranch=true ;;
+	--force)
+		export GSETTING_force=true ;;
+	--no-warn-master)
+		export GSETTING_warnmaster=false ;;
+	--debug)
+		: ;;
+	*)
+		faile "Unknown setting '$1'" ;;
+	esac
 }
 
 function args_getActionFor {
 	case "$1" in
-		-u)
+		-update)
 			# merge to
 			echo "update" ;;
-		-m)
+		-merge)
 			# merge from
 			echo "merge" ;;
-		-l)
+		-m|-commit)
+			echo "commit" ;;
+		-l|-pull)
 			echo "pull" ;;
-		-s)
+		-s|-push)
 			echo "push" ;;
-		-b)
+		-b|-branch)
 			echo "branch" ;;
-		-t)
+		-c|-checkout)
+			echo "checkout" ;;
+		-g|-log)
+			echo "log" ;;
+		-r|-remote)
 			echo "remote" ;;
-		--debug)
-			echo "$GITARGS_action" ;;
+		-stash)
+			echo "stash" ;;
+		*)
+			faile "Action $1 unknown"
+			;;
 	esac
+}
+GSETTING_gitnfile=./.gitn
+
+function settings_initialize {
+	: ${GSETTING_fetch=true}
+	: ${GSETTING_warnmaster=true}
+
+	: ${GSETTING_withtags=false}
+	: ${GSETTING_nofetch=false}
+	: ${GSETTING_histdiff=false}
+	: ${GSETTING_delbranch=true}
+	: ${GSETTING_force=false}
+}
+
+function settings_load {
+	if [[ -f "$GSETTING_gitnfile" ]]; then
+		. "$GSETTING_gitnfile"
+	fi
+
+	settings_initialize
 }
 #!/bin/bash
 
@@ -174,11 +366,143 @@ fi
 
 function action_diff {
 	for thefile in "${GITARGS_files[@]}"; do
-		gitcall diff "$thefile" | sed -r -e 's/^\+(.*)$/[32;1m\1[0m/' -e 's/^-(.*)$/[31;1m\1[0m/'|less -R
+		if [[ "$GSETTING_histdiff" = true ]]; then
+			action_diff_historic "$thefile"
+		else
+			action_diff_staged "$thefile"
+		fi
 	done
 }
+
+function action_diff_historic {
+	local lastcommit="$(gitn_last_commit)"
+	gitcall diff "$lastcommit" "$1" | action_diff_display
+}
+
+function action_diff_staged {
+	gitcall diff "$1" | action_diff_display
+}
+
+function action_diff_display {
+	sed -r -e 's/^\+(.*)$/[32;1m\1[0m/' -e 's/^-(.*)$/[31;1m\1[0m/'|less -R
+}
+#!/bin/bash
+
+### AskUser Usage:bbuild
+# Present the user with questions on stdout
+###/doc
+
+
+yespat='^(yes|YES|y|Y)$'
+numpat='^[0-9]+$'
+rangepat='[0-9]+,[0-9]+'
+blankpat='^ *$'
+
+### uconfirm Usage:bbuild
+# Ask the user to confirm a closed question. Defaults to no
+#
+# returns 0 on successfully match 'y' or 'yes'
+# returns 1 otherwise
+###/doc
+function uconfirm {
+	read -p "$* [y/N] > " 1>&2
+	if [[ "$REPLY" =~ $yespat ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+### uask Usage:bbuild
+# Ask the user to provide some text
+#
+# returns the entered text
+###/doc
+function uask {
+	read -p "$* : " 1>&2
+	echo $REPLY
+}
+
+### uchoose_multi Usage:bbuild
+# Allows the user to choose from multiple choices
+#
+# uchose_multi MESG CHOICESTRING
+#
+#
+# MESG is a single string token that will be displayed as prompt
+#
+# CHOICESTRING is a comma-separated, or newline separated, or "\\n"-separated token string
+#
+# Equivalent strings include:
+#
+# * `"a\\nb\\nc"` - quoted and explicit newline escapes
+# * `"a,b,c"` - quoted and separated with commas
+# * `a , b , c` - not quoted, separated by commas
+# * (and `a`, `b` and `c` on their own lines)
+#
+# User input:
+#
+# User can choose by selecting
+#
+# * a single item by number
+# * a range of numbers (4,7 for range 4 to 7)
+# * or a string that matches the pattern
+#
+# All option lines that match will be returned, one per line
+#
+# If the user selects nothing, then function returns 1 and an empty stdout
+###/doc
+function uchoose_multi {
+	local mesg=$1; shift
+	local choices=$(echo "$*"|sed -r 's/ *, */\n/g')
+	debuge "CHOICES: $choices"
+
+	infoe "$mesg:" 
+	echo -e "$choices"|egrep '^' -n| sed 's/:/: /' 1>&2
+	
+	local sel=$(uask "Choice")
+	if [[ "$sel" =~ $blankpat ]]; then
+		return 1
+	elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
+		debuge "Number choice [$sel]"
+		echo -e "$choices" | sed -n "$sel p"
+	else
+		debuge "Pattern choice [$sel]"
+		echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
+	fi
+	return 0
+}
+
+### uchoose Usage:bbuild
+# Ask the user to choose an item
+#
+# Like uchoose_multi, but will loop if the user selects more than one item
+#
+# If the provides no entry, returns 0
+#
+# If the user chooses one item, that item is echoed to stdout
+###/doc
+function uchoose {
+	local mesg=$1; shift
+	while true; do
+		local thechoice="$(uchoose_multi "$mesg" "$*")"
+		local lines=$(echo "$thechoice" | wc -l)
+		if [[ $lines = 1 ]]; then
+			echo "$thechoice"
+			return 0
+		else
+			warne "Too many results"
+		fi
+	done
+}
+
+
 function action_commit {
 	gitcall add "${GITARGS_files[@]}"
+
+	if [[ "$GSETTING_warnmaster" = true ]] && [[ "$(gitn_getBranch)" = master ]]; then
+		uconfirm "WARNING -- you are on master. Continue ?" || faile Abort
+	fi
 	
 	if [[ -z "${GITARGS_arguments[*]}" ]]; then
 		gitcall commit
@@ -186,37 +510,194 @@ function action_commit {
 		gitcall commit -m "${GITARGS_arguments[*]}"
 	fi
 }
+function action_status {
+	# GITARGS_* -- files, arguments
+	
+	action_fetch
 
-set -x
+	gitcall status
+}
+function action_fetch {
+	# GITARGS_* -- files, arguments
+	
+	if [[ "$GSETTING_fetch" = true ]]; then
+		git fetch "$(gitn_getRemote)"
+	fi
+}
+function action_pull {
+	# GITARGS_* -- files, arguments
+	
+	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
+	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
+
+	gitcall pull "$remote" "$branch"
+}
+function action_push {
+	# GITARGS_* -- files, arguments
+	
+	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
+	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
+
+	gitcall push "$remote" "$branch"
+
+	if [[ "${GSETTING_withtags}" = "true" ]]; then
+		gitcall push "$remote" --tags
+	fi
+		
+}
+function action_remote_getremote {
+	gitcall remote -v|egrep "^$1"
+}
+
+
+function action_remote_setremote {
+	if [[ -z "${2:-}" ]]; then
+		action_remote_getremote "$1"
+	else
+		local remstring="$(action_remote_getremote "$1")"
+
+		if [[ -z "$remstring" ]]; then
+			gitcall remote add "$1" "$2"
+		else
+			gitcall remote set-url "$1" "$2"
+		fi
+	fi
+}
+
+function action_remote {
+	# GITARGS_* -- files, arguments
+	
+	if [[ -z "${GITARGS_arguments[*]}" ]]; then
+		gitcall remote -v
+	else
+		action_remote_setremote "${GITARGS_arguments[@]}"
+	fi
+}
+function action_branch {
+	# GITARGS_* -- files, arguments
+
+	if [[ -z "${GITARGS_arguments[*]}" ]]; then
+		gitcall branch --list
+	else
+		if [[ "$GSETTING_delbranch" = true ]]; then
+			action_branch_delete "${GITARGS_arguments[0]}"
+		else
+
+			action_branch_switchto "${GITARGS_arguments[0]}"
+		fi
+	fi
+}
+
+function action_branch_hasbranch {
+	[[ -n "$(git branch --list|egrep "^..$1$")" ]]
+}
+
+function action_branch_delete {
+	if action_branch_hasbranch "$1"; then
+		local mode="-d"
+		if [[ "$GSETTING_force" = true ]]; then
+			mode="-D"
+		fi
+		gitcall branch "$mode" "$1"
+	fi
+}
+
+function action_branch_switchto {
+	local bopt=
+	if ! action_branch_hasbranch "$1"; then
+		bopt=-b
+	fi
+
+	stashpop stash
+	gitcall checkout $bopt "$1"
+	stashpop pop
+}
+
+function stashpop {
+	if [[ "$GSETTING_stashpop" != true ]]; then
+		return
+	fi
+
+	if [[ "$1" = stash ]]; then
+		gitcall stash
+	elif [[ "$2" = pop ]]; then
+		gitcall pop
+	else
+		faile "Invalid stashpop operation"
+	fi
+}
+function action_merge {
+	# GITARGS_* -- files, arguments
+	#merge from
+
+	local frombranch="${GITARGS_arguments[0]}"
+
+	if [[ -z "$frombranch" ]]; then faile "You need to specify a branch to pull merges from"; fi
+
+	gitcall merge "$frombranch"
+
+}
+
+# "Merge" pulls from another branch to the current branch
+# To do update, we need to switch - our original branch is then the "from" branch
+
+function action_update {
+	#merge to
+	local tobranch="${GITARGS_arguments[0]}"
+
+	if [[ -z "$tobranch" ]]; then faile "You need to specify a branch to push merges to."; fi
+
+	local frombranch="$(gitn_getBranch)"
+	if [[ -z "$frombranch" ]]; then
+		faile "Not a git repository"
+	fi
+
+	action_branch "$tobranch"   || faile "Cannot update '$tobranch'"
+	gitcall merge "$frombranch" || faile "Resolve issues"
+	action_branch "$frombranch" || faile "You may still be on '$tobranch'"
+}
+function action_stash {
+	# GITARGS_* -- files, arguments
+	
+	gitcall stash "${GITARGS_arguments[@]}"
+}
+function action_checkout {
+	# GITARGS_* -- files, arguments
+	
+	if [[ "${#GITARGS_files[@]}" = 1 ]]; then
+		gitcall checkout "${GITARGS_files[0]}"
+	else
+		faile "You must specify exactly one object for checkout."
+	fi
+}
 
 function main {
+	settings_load
 	args_processargs "$@"
 
 	case "$GITARGS_action" in
+	status)
+		action_status ;;
 	commit)
-		action_commit
-		;;
+		action_commit ;;
 	diff)
-		action_diff
-		;;
+		action_diff ;;
 	push)
-		action_push
-		;;
+		action_push ;;
 	pull)
-		action_pull
-		;;
+		action_pull ;;
 	branch)
-		action_branch
-		;;
+		action_branch ;;
 	remote)
-		action_remote
-		;;
+		action_remote ;;
 	merge)
-		action_merge
-		;;
+		action_merge ;;
 	update)
-		action_update
-		;;
+		action_update ;;
+	checkout)
+		action_checkout ;;
+	stash)
+		action_stash ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
