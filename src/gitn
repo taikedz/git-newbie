@@ -14,7 +14,8 @@
 #%include actions/status.sh actions/fetch.sh
 #%include actions/pull.sh actions/push.sh
 #%include actions/remote.sh actions/branch.sh
-#%include actions/merge.sh actions/checkout.sh
+#%include actions/merge.sh
+#%include actions/stash.sh actions/checkout.sh
 
 function main {
 	settings_load
