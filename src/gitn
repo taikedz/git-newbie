@@ -41,6 +41,8 @@ function main {
 		action_update ;;
 	checkout)
 		action_checkout ;;
+	stash)
+		action_stash ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
