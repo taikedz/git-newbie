@@ -46,31 +46,35 @@ function arguments_dosetting {
 		export GSETTING_nofetch=true ;;
 	--historic)
 		export GSETTING_histdiff=true ;;
+	--force)
+		export GSETTING_force=true ;;
 	*)
-		faile "Unknown setting '$1'"
+		faile "Unknown setting '$1'" ;;
 	esac
 }
 
 function args_getActionFor {
 	case "$1" in
-		-u)
+		-u|-update)
 			# merge to
 			echo "update" ;;
-		-m)
+		-m|-merge)
 			# merge from
 			echo "merge" ;;
-		-l)
+		-l|-pull)
 			echo "pull" ;;
-		-s)
+		-s|-push)
 			echo "push" ;;
-		-b)
+		-b|-branch)
 			echo "branch" ;;
-		-c)
+		-c|-checkout)
 			echo "checkout" ;;
-		-g)
+		-g|-log)
 			echo "log" ;;
-		-t)
+		-t|-remote)
 			echo "remote" ;;
+		-stash)
+			echo "stash" ;;
 		--debug)
 			echo "$GITARGS_action" ;;
 		*)

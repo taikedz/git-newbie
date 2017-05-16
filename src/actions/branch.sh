@@ -4,15 +4,38 @@ function action_branch {
 	if [[ -z "${GITARGS_arguments[*]}" ]]; then
 		gitcall branch --list
 	else
-		local bopt=
-		if [[ -z "$(git branch --list|egrep "^..${GITARGS_arguments[0]}$")" ]]; then
-			bopt=-b
-		fi
+		if [[ "$GSETTING_delbranch" = true ]]; then
+			action_branch_delete "${GITARGS_arguments[0]}"
+		else
 
-		stashpop stash
-		gitcall checkout $bopt "${GITARGS_arguments[0]}"
-		stashpop pop
+			action_branch_switchto "${GITARGS_arguments[0]}"
+		fi
 	fi
+}
+
+function action_branch_hasbranch {
+	[[ -n "$(git branch --list|egrep "^..$1$")" ]]
+}
+
+function action_branch_delete {
+	if action_branch_hasbranch "$1"; then
+		local mode="-d"
+		if [[ "$GSETTING_force" = true ]]; then
+			mode="-D"
+		fi
+		gitcall branch "$mode" "$1"
+	fi
+}
+
+function action_branch_switchto {
+	local bopt=
+	if ! action_branch_hasbranch "$1"; then
+		bopt=-b
+	fi
+
+	stashpop stash
+	gitcall checkout $bopt "$1"
+	stashpop pop
 }
 
 function stashpop {
