@@ -44,9 +44,12 @@ function stashpop {
 	fi
 
 	if [[ "$1" = stash ]]; then
-		gitcall stash
+		STASHTEMP="$(mktemp)"
+		gitcall stash > "$STASHTEMP"
 	elif [[ "$2" = pop ]]; then
-		gitcall pop
+		if ! grep -q "No local changes" "$STASHTEMP"; then
+			gitcall pop
+		fi
 	else
 		faile "Invalid stashpop operation"
 	fi
