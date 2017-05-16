@@ -46,6 +46,10 @@ function main {
 		action_checkout ;;
 	stash)
 		action_stash ;;
+	tag)
+		action_tag ;;
+	release)
+		action_release ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

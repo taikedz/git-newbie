@@ -83,6 +83,10 @@ function args_getActionFor {
 			echo "remote" ;;
 		-stash)
 			echo "stash" ;;
+		-tags)
+			echo "tag" ;;
+		-release)
+			echo "release" ;;
 		*)
 			faile "Action $1 unknown"
 			;;
