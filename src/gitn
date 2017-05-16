@@ -6,7 +6,7 @@
 #
 ###/doc
 
-#%include githelpers/calling.sh githelpers/branching.sh
+#%include githelpers/calling.sh githelpers/branching.sh githelpers/commits.sh
 #%include arguments.sh settings.sh
 #%include bashout.sh
 

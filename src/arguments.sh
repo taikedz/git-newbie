@@ -41,9 +41,11 @@ function args_processargs {
 function arguments_dosetting {
 	case "$1" in
 	--with-tags)
-		GSETTING_withtags=true ;;
+		export GSETTING_withtags=true ;;
 	--no-fetch|--nf)
-		GSETTINNG_nofetch=true ;;
+		export GSETTING_nofetch=true ;;
+	--historic)
+		export GSETTING_histdiff=true ;;
 	*)
 		faile "Unknown setting '$1'"
 	esac
