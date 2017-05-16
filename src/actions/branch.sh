@@ -39,16 +39,16 @@ function action_branch_switchto {
 }
 
 function stashpop {
-	if [[ "$GSETTING_stashpop" != true ]]; then
-		return
-	fi
+	#if [[ "$GSETTING_stashpop" != true ]]; then
+	#	return
+	#fi
 
 	if [[ "$1" = stash ]]; then
 		STASHTEMP="$(mktemp)"
 		gitcall stash > "$STASHTEMP"
-	elif [[ "$2" = pop ]]; then
+	elif [[ "$1" = pop ]]; then
 		if ! grep -q "No local changes" "$STASHTEMP"; then
-			gitcall pop
+			gitcall stash pop
 		fi
 	else
 		faile "Invalid stashpop operation"
