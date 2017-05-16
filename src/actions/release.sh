@@ -1,3 +1,10 @@
+# TODO
+# this item should manage a `version.sh` file
+# with a major, minor and point number
+# versionname should become "{ major | minor | point }"
+#  which indicates what part to bump
+
+
 function action_release {
 	# GITARGS_* -- files, arguments
 
