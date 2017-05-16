@@ -63,6 +63,10 @@ function args_getActionFor {
 			echo "push" ;;
 		-b)
 			echo "branch" ;;
+		-c)
+			echo "checkout" ;;
+		-g)
+			echo "log" ;;
 		-t)
 			echo "remote" ;;
 		--debug)
