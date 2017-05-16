@@ -1,6 +1,4 @@
 test/
-build-outd/
-release-cand/
 .*.swp
 .swp
-make-install.sh
+.gitn
