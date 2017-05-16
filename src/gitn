@@ -18,6 +18,7 @@
 #%include actions/remote.sh actions/branch.sh
 #%include actions/merge.sh
 #%include actions/stash.sh actions/checkout.sh
+#%include actions/tag.sh actions/release.sh
 
 function main {
 	settings_load

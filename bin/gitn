@@ -233,6 +233,10 @@ function args_getActionFor {
 			echo "remote" ;;
 		-stash)
 			echo "stash" ;;
+		-tags)
+			echo "tag" ;;
+		-release)
+			echo "release" ;;
 		*)
 			faile "Action $1 unknown"
 			;;
@@ -670,6 +674,31 @@ function action_checkout {
 		faile "You must specify exactly one object for checkout."
 	fi
 }
+function action_tag {
+	# GITARGS_* -- files, arguments
+	
+	gitcall tag --list
+}
+function action_release {
+	# GITARGS_* -- files, arguments
+
+	local versionname="${GITARGS_arguments[0]}"
+	local releasemessage="${GITARGS_arguments[@]:1}"
+
+	gitcall tag -m "$releasemessage" "$versionname"
+
+	if [[ -z "$(git status|grep modified:)" ]]; then
+		local thisbranch="$(gitn_getBranch)"
+
+		if [[ "$thisbranch" = master ]]; then
+			return
+		fi
+
+		action_branch_switchto master
+		gitcall merge "$thisbranch"
+		action_branch_switchto "$thisbranch"
+	fi
+}
 
 function main {
 	settings_load
@@ -698,6 +727,10 @@ function main {
 		action_checkout ;;
 	stash)
 		action_stash ;;
+	tag)
+		action_tag ;;
+	release)
+		action_release ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
