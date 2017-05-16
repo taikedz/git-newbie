@@ -50,6 +50,8 @@ function arguments_dosetting {
 		export GSETTING_delbranch=true ;;
 	--force)
 		export GSETTING_force=true ;;
+	--no-warn-master)
+		export GSETTING_warnmaster=false ;;
 	--debug)
 		: ;;
 	*)
