@@ -55,12 +55,14 @@ function arguments_dosetting {
 
 function args_getActionFor {
 	case "$1" in
-		-u|-update)
+		-update)
 			# merge to
 			echo "update" ;;
-		-m|-merge)
+		-merge)
 			# merge from
 			echo "merge" ;;
+		-m|-commit)
+			echo "commit" ;;
 		-l|-pull)
 			echo "pull" ;;
 		-s|-push)
@@ -71,7 +73,7 @@ function args_getActionFor {
 			echo "checkout" ;;
 		-g|-log)
 			echo "log" ;;
-		-t|-remote)
+		-r|-remote)
 			echo "remote" ;;
 		-stash)
 			echo "stash" ;;
