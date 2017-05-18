@@ -650,6 +650,7 @@ function action_push_changes {
 	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
+	infoe "Pushing $branch to $remote/$branch"
 	gitcall push "$remote" "$branch"
 }
 
