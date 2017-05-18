@@ -193,12 +193,12 @@ function gitn_getRemote {
 
 	if [[ -z "${2:-}" ]]; then
 		# git command BRANCH
-		if [[ -n "${GSETTING_remote:-}" ]]; then
-			echo "$GSETTING_remote"
-		else
+		if [[ -z "${GSETTING_remote:-}" ]]; then
 			warne Implicitly returning first remote
-			git remote -v|cut -f1|sort|uniq|head -n 1
+			export GSETTING_remote="$(git remote -v|cut -f1|sort|uniq|head -n 1)"
 		fi
+
+		echo "$GSETTING_remote"
 	else
 		# git command REMOTE BRANCH
 		echo "$1"
@@ -628,7 +628,7 @@ function action_fetch {
 	# GITARGS_* -- files, arguments
 	
 	if [[ "$GSETTING_nofetch" != true ]]; then
-		git fetch # "$(gitn_getRemote)"
+		git fetch "$(gitn_getRemote)"
 	fi
 }
 function action_pull {
@@ -821,7 +821,7 @@ function action_tag {
 	# GITARGS_* -- files, arguments
 	
 	if [[ "${#GITARGS_arguments[@]}" -gt 0 ]]; then
-		action_tag_writetag "${#GITARGS_arguments[@]}"
+		action_tag_writetag "${GITARGS_arguments[@]}"
 	else
 		action_tag_listtags
 	fi
