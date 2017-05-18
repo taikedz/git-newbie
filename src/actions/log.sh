@@ -1,7 +1,7 @@
 function action_log {
 	# GITARGS_* -- files, arguments
 	
-	if [[ -z "${#GITARGS_files}" ]]; then
+	if [[ "${#GITARGS_allfiles[@]}" -lt 1 ]]; then
 		action_log_general
 	else
 		action_log_files
@@ -13,7 +13,8 @@ function action_log_general {
 }
 
 function action_log_files {
-	for thefile in "${GITARGS_files[@]}"; do
+	for thefile in "${GITARGS_allfiles[@]}"; do
+		infoe "Log info for $thefile"
 		gitcall log "$thefile"
 	done
 }

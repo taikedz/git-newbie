@@ -10,6 +10,7 @@ function args_processargs {
 	local action_default=status
 
 	local l_GITARGS_files
+	local l_GITARGS_allfiles
 	GITARGS_action="$action_default"
 	local l_GITARGS_arguments
 
@@ -25,16 +26,19 @@ function args_processargs {
 			if [[ "$GITARGS_action" = "$action_default" ]] ||
 			   [[ "$GITARGS_action" = diff ]]; then
 				l_GITARGS_files[${#l_GITARGS_files[@]}]="$token"
+				l_GITARGS_allfiles[${#l_GITARGS_allfiles[@]}]="$token"
 				GITARGS_action=diff
 
 			else
 				l_GITARGS_arguments[${#l_GITARGS_arguments[@]}]="$token"
+				l_GITARGS_allfiles[${#l_GITARGS_allfiles[@]}]="$token"
 			fi
 		fi
 
 	done
 
 	GITARGS_files=("${l_GITARGS_files[@]}")
+	GITARGS_allfiles=("${l_GITARGS_allfiles[@]}")
 	GITARGS_arguments=("${l_GITARGS_arguments[@]}")
 }
 

@@ -237,6 +237,7 @@ function args_processargs {
 	local action_default=status
 
 	local l_GITARGS_files
+	local l_GITARGS_allfiles
 	GITARGS_action="$action_default"
 	local l_GITARGS_arguments
 
@@ -252,16 +253,19 @@ function args_processargs {
 			if [[ "$GITARGS_action" = "$action_default" ]] ||
 			   [[ "$GITARGS_action" = diff ]]; then
 				l_GITARGS_files[${#l_GITARGS_files[@]}]="$token"
+				l_GITARGS_allfiles[${#l_GITARGS_allfiles[@]}]="$token"
 				GITARGS_action=diff
 
 			else
 				l_GITARGS_arguments[${#l_GITARGS_arguments[@]}]="$token"
+				l_GITARGS_allfiles[${#l_GITARGS_allfiles[@]}]="$token"
 			fi
 		fi
 
 	done
 
 	GITARGS_files=("${l_GITARGS_files[@]}")
+	GITARGS_allfiles=("${l_GITARGS_allfiles[@]}")
 	GITARGS_arguments=("${l_GITARGS_arguments[@]}")
 }
 
@@ -779,6 +783,26 @@ function action_update {
 	action_branch_switchto "$frombranch" || faile "Could not return to branch"
 	stashpop pop
 }
+function action_log {
+	# GITARGS_* -- files, arguments
+	
+	if [[ "${#GITARGS_allfiles[@]}" -lt 1 ]]; then
+		action_log_general
+	else
+		action_log_files
+	fi
+}
+
+function action_log_general {
+	gitcall log
+}
+
+function action_log_files {
+	for thefile in "${GITARGS_allfiles[@]}"; do
+		infoe "Log info for $thefile"
+		gitcall log "$thefile"
+	done
+}
 function action_stash {
 	# GITARGS_* -- files, arguments
 	
@@ -871,6 +895,8 @@ function main {
 		action_tag ;;
 	release)
 		action_release ;;
+	log)
+		action_log ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
