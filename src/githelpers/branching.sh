@@ -12,6 +12,8 @@ function gitn_choose_branch {
 ###
 
 function gitn_getRemote {
+	breake "get remote $*"
+
 	if [[ -z "${2:-}" ]]; then
 		# git command BRANCH
 		if [[ -n "${GSETTING_remote:-}" ]]; then
@@ -27,13 +29,17 @@ function gitn_getRemote {
 }
 
 function gitn_getBranch {
+	breake "get branch $*"
+
 	if [[ -z "${1:-}" ]]; then
 		git branch --list|egrep '^\*'|cut -d' ' -f2
 	else
-		if [[ "${2:-}" ]]; then
+		if [[ -z "${2:-}" ]]; then
+			breake "return 1 $1"
 			# git command BRANCH
 			echo "$1"
 		else
+			breake "return 2 $2"
 			# git command REMOTE BRANCH
 			echo "$2"
 		fi
