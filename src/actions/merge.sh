@@ -23,9 +23,14 @@ function action_update {
 	if [[ -z "$frombranch" ]]; then
 		faile "Not a git repository"
 	fi
-	infoe "We will return to $frombranch"
 
-	action_branch "$tobranch"   || faile "Cannot update '$tobranch'"
+	GSETTING_stashswitch_impede=true # Turn off stashing when using switchto
+
+	stashpop stash || faile "Could not stash changes"
+	action_branch_switchto "$tobranch" || faile "Could not switch"
+
 	gitcall merge "$frombranch" || faile "Resolve issues"
-	action_branch "$frombranch" || faile "You may still be on '$tobranch'"
+
+	action_branch_switchto "$frombranch" || faile "Could not return to branch"
+	stashpop pop
 }

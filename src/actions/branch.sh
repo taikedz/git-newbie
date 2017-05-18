@@ -33,21 +33,21 @@ function action_branch_switchto {
 		bopt=-b
 	fi
 
-	stashpop stash
+	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop stash
+
 	gitcall checkout $bopt "$1"
-	stashpop pop
+	
+	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop pop
 }
 
 function stashpop {
-	#if [[ "$GSETTING_stashpop" != true ]]; then
-	#	return
-	#fi
-
 	if [[ "$1" = stash ]]; then
 		STASHTEMP="$(mktemp)"
 		gitcall stash > "$STASHTEMP"
+		debuge "Stash data : $(cat "$STASHTEMP")"
 	elif [[ "$1" = pop ]]; then
 		if ! grep -q "No local changes" "$STASHTEMP"; then
+			debuge "Popping stash"
 			gitcall stash pop
 		fi
 	else
