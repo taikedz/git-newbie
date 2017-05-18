@@ -7,7 +7,7 @@ function settings_initialize {
 	: ${GSETTING_withtags=false}
 	: ${GSETTING_nofetch=false}
 	: ${GSETTING_histdiff=false}
-	: ${GSETTING_delbranch=true}
+	: ${GSETTING_delbranch=false}
 	: ${GSETTING_force=false}
 }
 
