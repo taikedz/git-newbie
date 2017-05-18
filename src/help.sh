@@ -19,28 +19,30 @@
 #
 # ++
 #
-# 	gitn -s [REMOTE [BRANCH]] [--tags]
+# 	gitn -s [ [REMOTE] BRANCH] [--tags]
 #
-# Push to the specified remote. If no remote is specified, then the first
-#  remote in `git remote -v` is used, or the one in $GSETTING_remote if
-#  set. See SETTINGS.
+# Push to the specified or inferred branch and remote. If no remote is
+#  specified, then the first remote in `git remote -v` is used, or the
+#  one in $GSETTING_remote if set. See SETTINGS.
 #
 #  If --tags is specified, will push tags instead of commits
 #
 # ++
 #
-# 	gitn -l [REMOTE [BRANCH] ]
+# 	gitn -l [ [REMOTE] BRANCH ]
 #
-# Pull from specified or inferred branch and remote
+# Pull from specified or inferred branch and remote. If no remote is
+#  specified, then the first remote in `git remote -v` is used, or the
+#  one in $GSETTING_remote if set. See SETTINGS.
 #
 # ++
 #
-# 	gitn -b [BRANCH] [--delete [--force]]
+# 	gitn -b [BRANCH] [--delete [--force] ]
 #
 # List branches or switch to specified branch.
 #
 # If --delete is specified, deletes the branch. Use --force to force the
-# deletion of a branch not fully merged to its upstream.
+#  deletion of a branch not fully merged to its upstream.
 #
 # ++
 #
@@ -53,7 +55,7 @@
 # 	gitn -update BRANCH
 #
 # Write the current commit state to the named branch. If the branch does
-# not exist, it is created.
+#  not exist, it is created.
 #
 # ++
 #
@@ -72,7 +74,7 @@
 # 	git -t [REMOTE [URL]]
 #
 # List remotes, list URLs of a specified remote, or set the
-# URL of a remote.
+#  URL of a remote.
 #
 ###/doc
 
