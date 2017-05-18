@@ -124,6 +124,9 @@ function gitcall {
 	breake "git $@"
 	git "$@"
 }
+function gitn_choose_branch {
+	uchoose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
+}
 
 function gitn_getRemote {
 	if [[ -z "${1:-}" ]]; then
@@ -505,7 +508,12 @@ function action_commit {
 	gitcall add "${GITARGS_files[@]}"
 
 	if [[ "$GSETTING_warnmaster" = true ]] && [[ "$(gitn_getBranch)" = master ]]; then
-		uconfirm "WARNING -- you are on master. Continue ?" || faile Abort
+		uconfirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || faile "Abort."
+		#uconfirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || {
+		#	uconfirm "Would you like to move changes to another branch ?" && {
+		#		action_branch_switchto "$(gitn_choose_branch)" || faile "Failed to switch"
+		#	} || faile Abort
+		#}
 	fi
 	
 	if [[ -z "${GITARGS_arguments[*]}" ]]; then
@@ -525,7 +533,7 @@ function action_fetch {
 	# GITARGS_* -- files, arguments
 	
 	if [[ "$GSETTING_fetch" = true ]]; then
-		git fetch "$(gitn_getRemote)"
+		git fetch # "$(gitn_getRemote)"
 	fi
 }
 function action_pull {
@@ -618,14 +626,17 @@ function action_branch_switchto {
 }
 
 function stashpop {
-	if [[ "$GSETTING_stashpop" != true ]]; then
-		return
-	fi
+	#if [[ "$GSETTING_stashpop" != true ]]; then
+	#	return
+	#fi
 
 	if [[ "$1" = stash ]]; then
-		gitcall stash
-	elif [[ "$2" = pop ]]; then
-		gitcall pop
+		STASHTEMP="$(mktemp)"
+		gitcall stash > "$STASHTEMP"
+	elif [[ "$1" = pop ]]; then
+		if ! grep -q "No local changes" "$STASHTEMP"; then
+			gitcall stash pop
+		fi
 	else
 		faile "Invalid stashpop operation"
 	fi
@@ -677,14 +688,21 @@ function action_checkout {
 function action_tag {
 	# GITARGS_* -- files, arguments
 	
-	if [[ "${#arguments[@]}" -gt 0 ]]; then
-		local tagname="${arguments[0]}"
-		local commitmessage="${arguments[@]:1}"
+	if [[ "${#GITARGS_arguments[@]}" -gt 0 ]]; then
+		local tagname="${GITARGS_arguments[0]}"
+		local commitmessage="${GITARGS_arguments[@]:1}"
 		gitcall tag "$tagname" -m "$commitmessage"
 	else
 		gitcall tag --list
 	fi
 }
+# TODO
+# this item should manage a `version.sh` file
+# with a major, minor and point number
+# versionname should become "{ major | minor | point }"
+#  which indicates what part to bump
+
+
 function action_release {
 	# GITARGS_* -- files, arguments
 
