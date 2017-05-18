@@ -1,7 +1,7 @@
 function action_fetch {
 	# GITARGS_* -- files, arguments
 	
-	if [[ "$GSETTING_fetch" = true ]]; then
+	if [[ "$GSETTING_nofetch" != true ]]; then
 		git fetch # "$(gitn_getRemote)"
 	fi
 }

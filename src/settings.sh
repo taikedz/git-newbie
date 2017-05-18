@@ -1,7 +1,6 @@
 GSETTING_gitnfile=./.gitn
 
 function settings_initialize {
-	: ${GSETTING_fetch=true}
 	: ${GSETTING_warnmaster=true}
 
 	: ${GSETTING_withtags=false}
