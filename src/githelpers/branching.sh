@@ -16,12 +16,12 @@ function gitn_getRemote {
 
 	if [[ -z "${2:-}" ]]; then
 		# git command BRANCH
-		if [[ -n "${GSETTING_remote:-}" ]]; then
-			echo "$GSETTING_remote"
-		else
+		if [[ -z "${GSETTING_remote:-}" ]]; then
 			warne Implicitly returning first remote
-			git remote -v|cut -f1|sort|uniq|head -n 1
+			export GSETTING_remote="$(git remote -v|cut -f1|sort|uniq|head -n 1)"
 		fi
+
+		echo "$GSETTING_remote"
 	else
 		# git command REMOTE BRANCH
 		echo "$1"
