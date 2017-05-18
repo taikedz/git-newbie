@@ -9,6 +9,7 @@ function action_push {
 }
 
 function action_push_changes {
+	breake "$GITARGS_arguments"
 	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
