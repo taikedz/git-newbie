@@ -1,13 +1,22 @@
 function action_push {
 	# GITARGS_* -- files, arguments
-	
+
+	if [[ "${GSETTING_withtags}" = "true" ]]; then
+		action_push_tags
+	else
+		action_push_changes
+	fi
+}
+
+function action_push_changes {
 	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
 	gitcall push "$remote" "$branch"
+}
 
-	if [[ "${GSETTING_withtags}" = "true" ]]; then
-		gitcall push "$remote" --tags
-	fi
-		
+function action_push_tags {
+	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
+
+	gitcall push "$remote" --tags
 }

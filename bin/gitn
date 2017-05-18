@@ -193,7 +193,7 @@ function args_processargs {
 
 function arguments_dosetting {
 	case "$1" in
-	--with-tags)
+	--tags)
 		export GSETTING_withtags=true ;;
 	--no-fetch|--nf)
 		export GSETTING_nofetch=true ;;
@@ -546,16 +546,25 @@ function action_pull {
 }
 function action_push {
 	# GITARGS_* -- files, arguments
-	
+
+	if [[ "${GSETTING_withtags}" = "true" ]]; then
+		action_push_tags
+	else
+		action_push_changes
+	fi
+}
+
+function action_push_changes {
 	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
 	gitcall push "$remote" "$branch"
+}
 
-	if [[ "${GSETTING_withtags}" = "true" ]]; then
-		gitcall push "$remote" --tags
-	fi
-		
+function action_push_tags {
+	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
+
+	gitcall push "$remote" --tags
 }
 function action_remote_getremote {
 	gitcall remote -v|egrep "^$1"
@@ -695,12 +704,20 @@ function action_tag {
 	# GITARGS_* -- files, arguments
 	
 	if [[ "${#GITARGS_arguments[@]}" -gt 0 ]]; then
-		local tagname="${GITARGS_arguments[0]}"
-		local commitmessage="${GITARGS_arguments[@]:1}"
-		gitcall tag "$tagname" -m "$commitmessage"
+		action_tag_writetag "${#GITARGS_arguments[@]}"
 	else
-		gitcall tag --list
+		action_tag_listtags
 	fi
+}
+
+function action_tag_listtags {
+	gitcall tag --list
+}
+
+function action_tag_writetag {
+	local tagname="$1" ; shift
+	local commitmessage="$*"
+	gitcall tag "$tagname" -m "$commitmessage"
 }
 # TODO
 # this item should manage a `version.sh` file

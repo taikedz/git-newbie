@@ -2,10 +2,18 @@ function action_tag {
 	# GITARGS_* -- files, arguments
 	
 	if [[ "${#GITARGS_arguments[@]}" -gt 0 ]]; then
-		local tagname="${GITARGS_arguments[0]}"
-		local commitmessage="${GITARGS_arguments[@]:1}"
-		gitcall tag "$tagname" -m "$commitmessage"
+		action_tag_writetag "${#GITARGS_arguments[@]}"
 	else
-		gitcall tag --list
+		action_tag_listtags
 	fi
+}
+
+function action_tag_listtags {
+	gitcall tag --list
+}
+
+function action_tag_writetag {
+	local tagname="$1" ; shift
+	local commitmessage="$*"
+	gitcall tag "$tagname" -m "$commitmessage"
 }

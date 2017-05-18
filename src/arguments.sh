@@ -40,7 +40,7 @@ function args_processargs {
 
 function arguments_dosetting {
 	case "$1" in
-	--with-tags)
+	--tags)
 		export GSETTING_withtags=true ;;
 	--no-fetch|--nf)
 		export GSETTING_nofetch=true ;;
