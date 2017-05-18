@@ -18,5 +18,5 @@ function action_diff_staged {
 }
 
 function action_diff_display {
-	sed -r -e 's/^\+(.*)$/[32;1m\1[0m/' -e 's/^-(.*)$/[31;1m\1[0m/'|less -R
+	sed -r -e 's/^\+(.*)$/[32;1m+\1[0m/' -e 's/^-(.*)$/[31;1m-\1[0m/'|less -R
 }
