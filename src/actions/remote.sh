@@ -4,15 +4,27 @@ function action_remote_getremote {
 
 
 function action_remote_setremote {
+	local remote="$1"; shift
+	local urlpat="$2"; shift
+	local urlstart="${urlpat:0:2}"
+
 	if [[ -z "${2:-}" ]]; then
-		action_remote_getremote "$1"
+		action_remote_getremote "$remote"
 	else
-		local remstring="$(action_remote_getremote "$1")"
+		local remstring="$(action_remote_getremote "$remote")"
 
 		if [[ -z "$remstring" ]]; then
-			gitcall remote add "$1" "$2"
+			if [[ "$urlstart" != 's/' ]]; then
+				gitcall remote add "$remote" "$urlpat"
+			else
+				faile "Remote $remote is not defined yet."
+			fi
 		else
-			gitcall remote set-url "$1" "$2"
+			if [[ "$urlstart" = s/ ]]; then
+				gitcall remote set-url "$remote" "$(echo "$remstring"|sed -r -e "$urlpat")"
+			else
+				gitcall remote set-url "$remote" "$urlpat"
+			fi
 		fi
 	fi
 }
