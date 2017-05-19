@@ -54,7 +54,7 @@
 #
 # ++
 #
-# 	gitn -c [OBJECT]
+# 	gitn -c OBJECT
 #
 # Checkout an object
 #
@@ -79,10 +79,19 @@
 #
 # ++
 # 
-# 	git -t [REMOTE [URL]]
+# 	git -t [REMOTE [URLPAT]]
 #
 # List remotes, list URLs of a specified remote, or set the
 #  URL of a remote.
+#
+# If URLPAT starts with 's/' then it is treated as a sed substitution
+#  pattern for re-writing the URL
+#
+# ++
+#
+# 	gitn -blame FILES ...
+#
+# See git blame for each file
 #
 ###/doc
 
