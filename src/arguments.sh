@@ -112,6 +112,9 @@ function args_getActionFor {
 		-release)
 			echo "release" ;;
 
+		-patch)
+			echo "patch" ;;
+
 		*)
 			faile "Action $1 unknown"
 			;;

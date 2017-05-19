@@ -18,7 +18,7 @@
 #%include actions/status.sh actions/fetch.sh
 #%include actions/pull.sh actions/push.sh
 #%include actions/remote.sh actions/branch.sh
-#%include actions/merge.sh
+#%include actions/merge.sh actions/patch.sh
 #%include actions/log.sh actions/blame.sh
 #%include actions/stash.sh actions/checkout.sh
 #%include actions/tag.sh actions/release.sh
@@ -58,6 +58,8 @@ function main {
 		action_log ;;
 	blame)
 		action_blame ;;
+	patch)
+		action_patch ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
