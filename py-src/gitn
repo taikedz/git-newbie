@@ -1,7 +1,0 @@
-#!/usr/bin/python
-
-import gitcalling
-
-from sys import argv
-
-
