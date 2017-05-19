@@ -324,6 +324,9 @@ function args_getActionFor {
 		-g|-log)
 			echo "log" ;;
 
+		-blame)
+			echo "blame" ;;
+
 		-r|-remote)
 			echo "remote" ;;
 
@@ -814,6 +817,13 @@ function action_log_files {
 		gitcall log "$thefile"
 	done
 }
+function action_blame {
+	# GITARGS_* -- files, arguments
+	
+	for thefile in "${GITARGS_allfiles[@]}"; do
+		git blame "$thefile" | less
+	done
+}
 function action_stash {
 	# GITARGS_* -- files, arguments
 	
@@ -908,6 +918,8 @@ function main {
 		action_release ;;
 	log)
 		action_log ;;
+	blame)
+		action_blame ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

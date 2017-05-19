@@ -17,7 +17,7 @@
 #%include actions/pull.sh actions/push.sh
 #%include actions/remote.sh actions/branch.sh
 #%include actions/merge.sh
-#%include actions/log.sh
+#%include actions/log.sh actions/blame.sh
 #%include actions/stash.sh actions/checkout.sh
 #%include actions/tag.sh actions/release.sh
 
@@ -54,6 +54,8 @@ function main {
 		action_release ;;
 	log)
 		action_log ;;
+	blame)
+		action_blame ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

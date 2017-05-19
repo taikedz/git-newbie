@@ -97,6 +97,9 @@ function args_getActionFor {
 		-g|-log)
 			echo "log" ;;
 
+		-blame)
+			echo "blame" ;;
+
 		-r|-remote)
 			echo "remote" ;;
 
