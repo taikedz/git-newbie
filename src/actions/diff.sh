@@ -9,8 +9,7 @@ function action_diff {
 }
 
 function action_diff_historic {
-	local lastcommit="$(gitn_last_commit)"
-	gitcall diff "$lastcommit" "$1" | action_diff_display
+	gitcall log -p "$1"
 }
 
 function action_diff_staged {
