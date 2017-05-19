@@ -6,6 +6,43 @@
 #
 ###/doc
 
+### notest FUNCTION ARGUMENTS Usage:bbuild
+#
+# This function performs a simple test to see if the "BBSETTESTMODE" variable
+# is set to the string "test mode"
+#
+# If so, it does NOT call the function. In all other cases, the function is
+# called with the arguments.
+#
+# The purpose of this function is to allow a simple method to encourage testability
+#
+# Example:
+#
+#
+# 	function action1 { ... }
+#
+# 	function action2 { ... }
+#
+# 	function main {
+# 		action1
+# 		action2
+# 	}
+#
+# 	notest main "$@"
+#
+# You can source a file with this kind of structure without the risk of triggering
+# its runtime. This allows the file to be sourced and tested safely.
+#
+###/doc
+
+function notest {
+	local funcall="$1"; shift
+
+	if [[ "$BBTESTMODE" != "test mode" ]]; then
+		"$funcall" "$@"
+	fi
+}
+
 ### Git Newbie Usage:help
 #
 # The `gitn` tool offers git users shortcuts for some of the most common
@@ -935,6 +972,4 @@ function main {
 	esac
 }
 
-if [[ "$NORUN" != norun ]]; then
-	main "$@"
-fi
+notest main "$@"

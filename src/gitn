@@ -6,6 +6,8 @@
 #
 ###/doc
 
+#%include notest.sh
+
 #%include help.sh autohelp.sh
 
 #%include githelpers/calling.sh githelpers/branching.sh githelpers/commits.sh
@@ -62,6 +64,4 @@ function main {
 	esac
 }
 
-if [[ "$NORUN" != norun ]]; then
-	main "$@"
-fi
+notest main "$@"
