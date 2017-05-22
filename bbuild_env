@@ -1,3 +1,4 @@
 BUILDOUTD=./bin
 SHELLCHECK=false
 BBFILES=(src/gitn)
+BBPATH="$BBPATH:./"

@@ -1,10 +1,6 @@
 #!/bin/bash
 
-### gitn Usage:help
-#
-# Shorthands for git workflows
-#
-###/doc
+#%include version.sh
 
 #%include notest.sh
 

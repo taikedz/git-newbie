@@ -1,23 +1,49 @@
 #!/bin/bash
 
-### gitn Usage:help
-#
-# Shorthands for git workflows
-#
+### Helper for version management Usage:bbuild
+# Requires a version.bbuild in the current directory to work
 ###/doc
+
+BBVERSION_MAJOR=2
+BBVERSION_MINOR=0
+BBVERSION_POINT=0
+BBVERSION_FLAG=release
+BBVERSION_PROGRAM=gitn
+BBVERSION_BUILDDATE=2017-05-22
+BBVERSION_BUILD=106
+
+function bbns_version_infoe {
+	type infoe 2>&1|if grep 'not found' -q; then
+		echo "$*"
+	else
+		infoe "$*"
+	fi
+}
+
+function bbns_version_showversion {
+	bbns_version_infoe "$BBVERSION_PROGRAM : $(bbns_version_genversion)"
+	exit
+}
+
+function bbns_version_genversion {
+	echo "$BBVERSION_MAJOR.$BBVERSION_MINOR.$BBVERSION_POINT ($BBVERSION_FLAG build $BBVERSION_BUILD) $BBVERSION_BUILDDATE"
+}
+
+if [[ "$*" =~ --version ]]; then
+	bbns_version_showversion
+fi
 
 ### notest FUNCTION ARGUMENTS Usage:bbuild
 #
-# This function performs a simple test to see if the "BBSETTESTMODE" variable
-# is set to the string "test mode"
+# This function performs a simple test to see if the "BBSETTESTMODE" variable is set to the string "test mode"
 #
-# If so, it does NOT call the function. In all other cases, the function is
-# called with the arguments.
+# If so, it does NOT call the function. In all other cases, the function is called with the arguments.
 #
-# The purpose of this function is to allow a simple method to encourage testability
+# The purpose of this function is to allow a simple method to encourage testability: source notest.sh in your test script, and set the BBTESTMODE variable to "test mode" to prevent the script from running.
 #
-# Example:
+# Example test target script, "test_target.sh":
 #
+#	#%include notest.sh
 #
 # 	function action1 { ... }
 #
@@ -30,31 +56,40 @@
 #
 # 	notest main "$@"
 #
-# You can source a file with this kind of structure without the risk of triggering
-# its runtime. This allows the file to be sourced and tested safely.
+# Example test script:
+#
+# 	. ~/.local/lib/bbuild/notest.sh
+# 	BBTESTMODE="test mode"
+#
+# 	# main will not run
+# 	. test_target.sh
+#
+# 	action1 || echo failed action1
+#
+# 	action2 || echo failed action2
+#
+# You can source a file with this kind of structure without the risk of triggering its runtime. This allows the file to be sourced and tested safely.
 #
 ###/doc
 
 function notest {
 	local funcall="$1"; shift
 
-	if [[ "$BBTESTMODE" != "test mode" ]]; then
+	if [[ "${BBTESTMODE:-}" != "test mode" ]]; then
 		"$funcall" "$@"
 	fi
 }
 
 ### Git Newbie Usage:help
 #
-# The `gitn` tool offers git users shortcuts for some of the most common
-# operations, as well as some additional features.
+# The `gitn` tool offers git users shortcuts for some of the most common operations, as well as some additional features.
 #
 # USAGE
 # -----
 #
 #	gitn FILES ... [--historic]
 #
-# Show the diff of files that have not yet been staged for commit,
-#  or show the last changes to the file
+# Show the diff of files that have not yet been staged for commit, or show the last changes to the file
 #
 # ++
 #
@@ -66,9 +101,7 @@ function notest {
 #
 # 	gitn -s [ [REMOTE] BRANCH] [--tags]
 #
-# Push to the specified or inferred branch and remote. If no remote is
-#  specified, then the first remote in `git remote -v` is used, or the
-#  one in $GSETTING_remote if set. See SETTINGS.
+# Push to the specified or inferred branch and remote. If no remote is specified, then the first remote in `git remote -v` is used, or the one in $GSETTING_remote if set. See SETTINGS.
 #
 #  If --tags is specified, will push tags instead of commits
 #
@@ -76,9 +109,7 @@ function notest {
 #
 # 	gitn -l [ [REMOTE] BRANCH ]
 #
-# Pull from specified or inferred branch and remote. If no remote is
-#  specified, then the first remote in `git remote -v` is used, or the
-#  one in $GSETTING_remote if set. See SETTINGS.
+# Pull from specified or inferred branch and remote. If no remote is specified, then the first remote in `git remote -v` is used, or the one in $GSETTING_remote if set. See SETTINGS.
 #
 # ++
 #
@@ -86,8 +117,7 @@ function notest {
 #
 # List branches or switch to specified branch.
 #
-# If --delete is specified, deletes the branch. Use --force to force the
-#  deletion of a branch not fully merged to its upstream.
+# If --delete is specified, deletes the branch. Use --force to force the deletion of a branch not fully merged to its upstream.
 #
 # ++
 #
@@ -99,8 +129,7 @@ function notest {
 #
 # 	gitn -update BRANCH
 #
-# Write the current commit state to the named branch. If the branch does
-#  not exist, it is created.
+# Write the current commit state to the named branch. If the branch does not exist, it is created.
 #
 # ++
 #
@@ -118,11 +147,9 @@ function notest {
 # 
 # 	git -t [REMOTE [URLPAT]]
 #
-# List remotes, list URLs of a specified remote, or set the
-#  URL of a remote.
+# List remotes, list URLs of a specified remote, or set the URL of a remote.
 #
-# If URLPAT starts with 's/' then it is treated as a sed substitution
-#  pattern for re-writing the URL
+# If URLPAT starts with 's/' then it is treated as a sed substitution pattern for re-writing the URL
 #
 # ++
 #
@@ -208,7 +235,8 @@ function printhelp {
 #
 ###/doc
 if [[ "$@" =~ --help ]]; then
-	printhelp
+	cols="$(tput cols)"
+	printhelp | fold -w "$cols" -s
 	exit 0
 fi
 
