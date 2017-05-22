@@ -7,14 +7,14 @@
 BBVERSION_MAJOR=2
 BBVERSION_MINOR=0
 BBVERSION_POINT=0
-BBVERSION_FLAG=dev
+BBVERSION_FLAG=release
 BBVERSION_PROGRAM=gitn
 BBVERSION_BUILDDATE=2017-05-22
-BBVERSION_BUILD=104
+BBVERSION_BUILD=106
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
-		echo "$*" >&2
+		echo "$*"
 	else
 		infoe "$*"
 	fi
@@ -35,16 +35,15 @@ fi
 
 ### notest FUNCTION ARGUMENTS Usage:bbuild
 #
-# This function performs a simple test to see if the "BBSETTESTMODE" variable
-# is set to the string "test mode"
+# This function performs a simple test to see if the "BBSETTESTMODE" variable is set to the string "test mode"
 #
-# If so, it does NOT call the function. In all other cases, the function is
-# called with the arguments.
+# If so, it does NOT call the function. In all other cases, the function is called with the arguments.
 #
-# The purpose of this function is to allow a simple method to encourage testability
+# The purpose of this function is to allow a simple method to encourage testability: source notest.sh in your test script, and set the BBTESTMODE variable to "test mode" to prevent the script from running.
 #
-# Example:
+# Example test target script, "test_target.sh":
 #
+#	#%include notest.sh
 #
 # 	function action1 { ... }
 #
@@ -57,8 +56,19 @@ fi
 #
 # 	notest main "$@"
 #
-# You can source a file with this kind of structure without the risk of triggering
-# its runtime. This allows the file to be sourced and tested safely.
+# Example test script:
+#
+# 	. ~/.local/lib/bbuild/notest.sh
+# 	BBTESTMODE="test mode"
+#
+# 	# main will not run
+# 	. test_target.sh
+#
+# 	action1 || echo failed action1
+#
+# 	action2 || echo failed action2
+#
+# You can source a file with this kind of structure without the risk of triggering its runtime. This allows the file to be sourced and tested safely.
 #
 ###/doc
 
