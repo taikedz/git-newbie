@@ -6,6 +6,39 @@
 #
 ###/doc
 
+### Helper for version management Usage:bbuild
+# Requires a version.bbuild in the current directory to work
+###/doc
+
+BBVERSION_MAJOR=2
+BBVERSION_MINOR=0
+BBVERSION_POINT=0
+BBVERSION_FLAG=dev
+BBVERSION_PROGRAM=gitn
+BBVERSION_BUILDDATE=2017-05-22
+BBVERSION_BUILD=102
+
+function bbns_version_infoe {
+	type infoe 2>&1|if grep 'not found' -q; then
+		echo "$*" >&2
+	else
+		infoe "$*"
+	fi
+}
+
+function bbns_version_showversion {
+	bbns_version_infoe "$BBVERSION_PROGRAM : $(bbns_version_genversion)"
+	exit
+}
+
+function bbns_version_genversion {
+	echo "$BBVERSION_MAJOR.$BBVERSION_MINOR.$BBVERSION_POINT ($BBVERSION_FLAG build $BBVERSION_BUILD) $BBVERSION_BUILDDATE"
+}
+
+if [[ "$*" =~ --version ]]; then
+	bbns_version_showversion
+fi
+
 ### notest FUNCTION ARGUMENTS Usage:bbuild
 #
 # This function performs a simple test to see if the "BBSETTESTMODE" variable
@@ -38,7 +71,7 @@
 function notest {
 	local funcall="$1"; shift
 
-	if [[ "$BBTESTMODE" != "test mode" ]]; then
+	if [[ "${BBTESTMODE:-}" != "test mode" ]]; then
 		"$funcall" "$@"
 	fi
 }
