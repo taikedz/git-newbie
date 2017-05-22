@@ -115,6 +115,9 @@ function args_getActionFor {
 		-patch)
 			echo "patch" ;;
 
+		-gh)
+			echo "github_create" ;;
+
 		*)
 			faile "Action $1 unknown"
 			;;

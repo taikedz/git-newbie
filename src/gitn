@@ -60,6 +60,8 @@ function main {
 		action_blame ;;
 	patch)
 		action_patch ;;
+	#github_create)
+	#	action_githubcreate ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
