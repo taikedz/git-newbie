@@ -47,12 +47,10 @@ function action_githubcreate_newrepo {
 }
 
 function action_github_setremote {
-	# NOTE - this is highly dependent on the JSON being pretty formatted with
-	#  key-value paris being alone on lines
 
 	debuge "$*"
 
-	local cloneurl="$(jq_query .git_url "$*")"
+	local cloneurl="$(jq_query .git_url "$*"|sed 's/"//g')"
 
 	local defremote="$(action_remote_getremote "origin")"
 
