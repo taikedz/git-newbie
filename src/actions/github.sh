@@ -56,7 +56,7 @@ function action_github_setremote {
 
 	local defremote="$(action_remote_getremote "origin")"
 
-	if [[ -n "$defremote" ]]; then
+	if [[ -z "$defremote" ]]; then
 		defremote=origin
 	else
 		defremote=gitnauto
