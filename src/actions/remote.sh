@@ -11,7 +11,7 @@ function action_remote_setremote {
 	if [[ -z "${urlpat:-}" ]]; then
 		action_remote_getremote "$remote"
 	else
-		local remstring="$(action_remote_getremote "$remote")"
+		local remstring="$(action_remote_getremote "$remote"|head -n 1|cut -f2)"
 
 		if [[ -z "$remstring" ]]; then
 			if [[ "$urlstart" != 's/' ]]; then
