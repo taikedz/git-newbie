@@ -5,12 +5,12 @@
 ###/doc
 
 BBVERSION_MAJOR=2
-BBVERSION_MINOR=0
-BBVERSION_POINT=0
+BBVERSION_MINOR=1
+BBVERSION_POINT=1
 BBVERSION_FLAG=release
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-05-22
-BBVERSION_BUILD=106
+BBVERSION_BUILDDATE=2017-05-23
+BBVERSION_BUILD=120
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -239,6 +239,95 @@ if [[ "$@" =~ --help ]]; then
 	printhelp | fold -w "$cols" -s
 	exit 0
 fi
+#!/bin/bash
+
+### getbin COMMANDS ... Usage:bbuild
+#
+# Return the first existing binary
+#
+# Useful for finding an appropriate binary when you know
+# different systems may supply binaries under different names.
+#
+# Returns the full path from `which` for the first executable
+# encountered.
+#
+# Example:
+#
+# 	getbin markdown_py markdown ./mymarkdown
+#
+# Tries in turn to get a `markdown_py`, then a `markdown`, and then a local `./mymarkdown`
+#
+###/doc
+
+function getbin {
+	local BINEXE=
+	for binname in "$@"; do
+		# Some implementations of `which` print error messages
+		# Not useful here.
+		BINEXE=$(which "$binname" 2>/dev/null)
+
+		if [[ -n "$BINEXE" ]]; then
+			echo "$BINEXE"
+			return 0
+		fi
+	done
+	return 1
+}
+
+### hasbin COMMANDS ... Usage:bbuild
+#
+# Determine if at least one of the binaries listed is present and installed on the system
+#
+###/doc
+
+function hasbin {
+	[[ -n "$(getbin "$@")" ]]
+}
+### ensureline Usage:bbuild
+#
+# Utility for manipulating config files (and other files where all similar lines need to match).
+#
+#	ensureline FILE PATTERN LINEDATA
+#
+# Ensure that **every** line in FILE matched by PATTERN becomes LINEDATA
+#
+# If no such line is found, LINEDATA is appended to the end of the file.
+#
+# For example
+#
+# 	ensureline /etc/ssh/sshd_config '#?PasswordAuthentication.*' "PasswordAuthentication no"
+#
+# Ensure that the PasswordAuthentication line, whether commented out or not, becomes an uncomented "PasswordAuthentication no", or add it to the end of the file.
+#
+# The match applies to the full line; the pattern '#?PasswordAuth' on its own would not match, due to the missing characters.
+#
+###/doc
+
+function ensureline {
+	if grep -P "^$1$" "$2" -q ; then
+		ensureline_matches "$@"
+	else
+		ensureline_add "$@"
+	fi
+}
+
+function ensureline_matches {
+	local FILE="$1"; shift
+	local PATTERN="$1"; shift
+	local LINEDATA="$1"; shift
+
+	#TODO - add support to specify a start line, and a range?
+
+	sed 's^$PATTERN$$LINEDATA' -i "$FILE"
+}
+
+function ensureline_add {
+	local FILE="$1"; shift
+	local PATTERN="$1"; shift
+	local LINEDATA="$1"; shift
+
+	echo "$LINEDATA" >> "$FILE"
+}
 
 ### gitcall Usage:gitn-api
 #
@@ -415,6 +504,9 @@ function args_getActionFor {
 
 		-patch)
 			echo "patch" ;;
+
+		-gh)
+			echo "github_create" ;;
 
 		*)
 			faile "Action $1 unknown"
@@ -748,14 +840,14 @@ function action_remote_getremote {
 
 
 function action_remote_setremote {
-	local remote="$1"; shift
-	local urlpat="$2"; shift
+	local remote="${1:-}"; shift
+	local urlpat="${1:-}"; shift
 	local urlstart="${urlpat:0:2}"
 
-	if [[ -z "${2:-}" ]]; then
+	if [[ -z "${urlpat:-}" ]]; then
 		action_remote_getremote "$remote"
 	else
-		local remstring="$(action_remote_getremote "$remote")"
+		local remstring="$(action_remote_getremote "$remote"|head -n 1|cut -f2)"
 
 		if [[ -z "$remstring" ]]; then
 			if [[ "$urlstart" != 's/' ]]; then
@@ -1004,6 +1096,71 @@ function action_release {
 		action_branch_switchto "$thisbranch"
 	fi
 }
+function action_github_checkprereqs {
+	if ! hasbin curl; then
+		faile "Cannot find curl -- abort"
+	fi
+
+	if ! hasbin jq; then
+		faile "Cannot find jq"
+	fi
+}
+
+function action_github_jsoncall {
+	uname=$(uask "username")
+
+	curl -s -u "$uname" "https://api.github.com/user/repos" -d "$*"
+}
+
+function action_githubcreate {
+	# GITARGS_* -- files, arguments
+	action_github_checkprereqs
+	
+	if [[ -n "${GITARGS_arguments[*]}" ]]; then
+		local githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
+
+		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
+			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
+		fi
+
+		action_github_setremote "$githubjson_res"
+	else
+		faile "No repository specified"
+	fi
+}
+
+function jq_query {
+	local query="$1"; shift
+	local stringdata="$*"
+
+	jq "$query" <(echo "$stringdata")
+}
+
+function action_githubcreate_newrepo {
+	NEWREPO="$1" ; shift
+	DESC="$*"
+
+	action_github_jsoncall "{\"name\":\"$NEWREPO\", \"description\":\"$DESC\" }"
+
+}
+
+function action_github_setremote {
+
+	debuge "$*"
+
+	local cloneurl="$(jq_query .git_url "$*"|sed 's/"//g')"
+
+	local defremote="$(action_remote_getremote "origin")"
+
+	if [[ -z "$defremote" ]]; then
+		defremote=origin
+	else
+		defremote=gitnauto
+	fi
+
+	action_remote_setremote "$defremote" "$cloneurl"
+
+}
 
 function main {
 	settings_load
@@ -1042,6 +1199,8 @@ function main {
 		action_blame ;;
 	patch)
 		action_patch ;;
+	github_create)
+		action_githubcreate ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;
