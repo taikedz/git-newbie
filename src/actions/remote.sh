@@ -4,11 +4,11 @@ function action_remote_getremote {
 
 
 function action_remote_setremote {
-	local remote="$1"; shift
-	local urlpat="$2"; shift
+	local remote="${1:-}"; shift
+	local urlpat="${1:-}"; shift
 	local urlstart="${urlpat:0:2}"
 
-	if [[ -z "${2:-}" ]]; then
+	if [[ -z "${urlpat:-}" ]]; then
 		action_remote_getremote "$remote"
 	else
 		local remstring="$(action_remote_getremote "$remote")"
