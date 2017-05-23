@@ -20,10 +20,22 @@ function action_githubcreate {
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
 		local githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
-		action_github_jsonquery "QUERY" "$githubjson_res"
+
+		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
+			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
+		fi
+
+		action_github_setremote "$githubjson_res"
 	else
 		faile "No repository specified"
 	fi
+}
+
+function jq_query {
+	local query="$1"; shift
+	local stringdata="$*"
+
+	jq "$query" <(echo "$stringdata")
 }
 
 function action_githubcreate_newrepo {
@@ -34,8 +46,22 @@ function action_githubcreate_newrepo {
 
 }
 
-function action_github_jsonquery {
-	local query="$1"; shift
+function action_github_setremote {
+	# NOTE - this is highly dependent on the JSON being pretty formatted with
+	#  key-value paris being alone on lines
 
-	infoe "$(echo "$*"|grep ://)"
+	debuge "$*"
+
+	local cloneurl="$(jq_query .git_url "$*")"
+
+	local defremote="$(action_remote_getremote "origin")"
+
+	if [[ -n "$defremote" ]]; then
+		defremote=origin
+	else
+		defremote=gitnauto
+	fi
+
+	action_remote_setremote "$defremote" "$cloneurl"
+
 }
