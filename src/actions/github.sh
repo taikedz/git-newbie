@@ -11,15 +11,16 @@ function action_github_checkprereqs {
 function action_github_jsoncall {
 	uname=$(uask "username")
 
-	curl -u "$uname" "https://api.github.com/user/repos" -d "$*"
+	curl -s -u "$uname" "https://api.github.com/user/repos" -d "$*"
 }
 
 function action_githubcreate {
 	# GITARGS_* -- files, arguments
-	local githubjson_res
+	action_github_checkprereqs
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
+		local githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
+		action_github_jsonquery "QUERY" "$githubjson_res"
 	else
 		faile "No repository specified"
 	fi
@@ -31,4 +32,10 @@ function action_githubcreate_newrepo {
 
 	action_github_jsoncall "{\"name\":\"$NEWREPO\", \"description\":\"$DESC\" }"
 
+}
+
+function action_github_jsonquery {
+	local query="$1"; shift
+
+	infoe "$(echo "$*"|grep ://)"
 }
