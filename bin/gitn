@@ -7,10 +7,10 @@
 BBVERSION_MAJOR=2
 BBVERSION_MINOR=0
 BBVERSION_POINT=0
-BBVERSION_FLAG=release
+BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-05-23
-BBVERSION_BUILD=124
+BBVERSION_BUILDDATE=2017-05-24
+BBVERSION_BUILD=126
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -507,6 +507,9 @@ function args_getActionFor {
 
 		-gh)
 			echo "github_create" ;;
+
+		-sub)
+			echo "submodule" ;;
 
 		*)
 			faile "Action $1 unknown"
@@ -1161,6 +1164,13 @@ function action_github_setremote {
 	action_remote_setremote "$defremote" "$cloneurl"
 
 }
+function action_submodule {
+	# GITARGS_* -- files, arguments
+
+	local moduleurl="${GITARGS_arguments[0]}"
+
+	gitcall submodule add "$moduleurl"
+}
 
 function main {
 	settings_load
@@ -1201,6 +1211,8 @@ function main {
 		action_patch ;;
 	github_create)
 		action_githubcreate ;;
+	submodule)
+		action_submodule ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

@@ -18,7 +18,7 @@
 #%include actions/log.sh actions/blame.sh
 #%include actions/stash.sh actions/checkout.sh
 #%include actions/tag.sh actions/release.sh
-#%include actions/github.sh
+#%include actions/github.sh actions/submodule.sh
 
 function main {
 	settings_load
@@ -59,6 +59,8 @@ function main {
 		action_patch ;;
 	github_create)
 		action_githubcreate ;;
+	submodule)
+		action_submodule ;;
 	*)
 		faile "Action $GITARGS_action not yet available"
 		;;

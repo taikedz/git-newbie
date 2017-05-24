@@ -118,6 +118,9 @@ function args_getActionFor {
 		-gh)
 			echo "github_create" ;;
 
+		-sub)
+			echo "submodule" ;;
+
 		*)
 			faile "Action $1 unknown"
 			;;
