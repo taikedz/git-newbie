@@ -1,0 +1,11 @@
+This file belongs to %%SOFTWARE%%
+(C) %%YEAR%% %%AUTHOR%%
+
+This code is provided to you under the terms of
+the GNU General Public License Version 3
+
+You should have received a copy of the license
+with the application and/or source.
+
+If not, see the Free Software FOundation's site:
+https://www.gnu.org/licenses/gpl-3.0.html
