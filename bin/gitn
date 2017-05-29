@@ -4,13 +4,14 @@
 # Requires a version.bbuild in the current directory to work
 ###/doc
 
+#%VERSIONFILE
 BBVERSION_MAJOR=2
 BBVERSION_MINOR=0
 BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-05-24
-BBVERSION_BUILD=126
+BBVERSION_BUILDDATE=2017-05-29
+BBVERSION_BUILD=127
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
