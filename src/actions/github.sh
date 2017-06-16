@@ -9,7 +9,7 @@ function action_github_checkprereqs {
 }
 
 function action_github_jsoncall {
-	uname=$(uask "username")
+	local uname="$1"; shift
 
 	curl -s -u "$uname" "https://api.github.com/user/repos" -d "$*"
 }
@@ -17,15 +17,18 @@ function action_github_jsoncall {
 function action_githubcreate {
 	# GITARGS_* -- files, arguments
 	action_github_checkprereqs
+
+	local reponame="$1"; shift
+	local username=$(uask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		local githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
+		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]}")"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
 			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
 		fi
 
-		action_github_setremote "$githubjson_res"
+		action_github_setremote "$username" "$reponame"
 	else
 		faile "No repository specified"
 	fi
@@ -39,27 +42,26 @@ function jq_query {
 }
 
 function action_githubcreate_newrepo {
-	NEWREPO="$1" ; shift
-	DESC="$*"
+	local username="$1"; shift
+	local newrepo="$1" ; shift
+	local repodesc="$*"
 
-	action_github_jsoncall "{\"name\":\"$NEWREPO\", \"description\":\"$DESC\" }"
+	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 
 }
 
 function action_github_setremote {
+	local username="$1"; shift
+	local reponame="$1"; shift
 
-	debuge "$*"
-
-	local cloneurl="$(jq_query .git_url "$*"|sed 's/"//g')"
-
+	local cloneurl="ssh://git@github.com/$username/$reponame"
 	local defremote="$(action_remote_getremote "origin")"
 
-	if [[ -z "$defremote" ]]; then
-		defremote=origin
+	if [[ -z "${defremote:-}" ]]; then
+		defremote="origin"
 	else
-		defremote=gitnauto
+		defremote="gitnauto"
 	fi
 
 	action_remote_setremote "$defremote" "$cloneurl"
-
 }
