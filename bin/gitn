@@ -10,8 +10,8 @@ BBVERSION_MINOR=0
 BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-05-29
-BBVERSION_BUILD=127
+BBVERSION_BUILDDATE=2017-07-06
+BBVERSION_BUILD=128
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -305,7 +305,9 @@ function hasbin {
 ###/doc
 
 function ensureline {
-	if grep -P "^$1$" "$2" -q ; then
+	local file="$1"; shift
+	local pattern="$1"; shift
+	if grep -P "^$pattern$" "$file" -q ; then
 		ensureline_matches "$@"
 	else
 		ensureline_add "$@"
@@ -530,11 +532,26 @@ function settings_initialize {
 }
 
 function settings_load {
-	if [[ -f "$GSETTING_gitnfile" ]]; then
-		. "$GSETTING_gitnfile"
-	fi
+	settings_bubbleup
 
 	settings_initialize
+}
+
+function settings_bubbleup {
+	if [[ -f "$GSETTING_gitnfile" ]]; then
+		. "$GSETTING_gitnfile"
+
+	elif [[ -d .git ]] || [[ "$PWD" = / ]]; then
+		# We only want to load settings for the current git project
+		return
+
+	else
+		# Use a subshell to avoid changing the working directory at main level
+		(
+		cd ..
+		settings_bubbleup
+		)
+	fi
 }
 #!/bin/bash
 
@@ -559,7 +576,6 @@ function settings_load {
 #
 ###/doc
 
-export CDEF="[0m"
 export CRED="[31m"
 export CGRN="[32m"
 export CYEL="[33m"
@@ -570,8 +586,10 @@ export CBGRN="[1;32m"
 export CBYEL="[1;33m"
 export CBBLU="[1;34m"
 export CBPUR="[1;35m"
+export CDEF="[0m"
 
 MODE_DEBUG=no
+MODE_DEBUG_VERBOSE=no
 
 ### debuge MESSAGE Usage:bbuild
 # print a blue debug message to stderr
@@ -640,6 +658,10 @@ function breake {
 
 if [[ "$*" =~ --debug ]]; then
 	MODE_DEBUG=yes
+
+	if [[ "$MODE_DEBUG_VERBOSE" = yes ]]; then
+		set -x
+	fi
 fi
 
 function action_diff {
@@ -673,6 +695,7 @@ function action_diff_display {
 yespat='^(yes|YES|y|Y)$'
 numpat='^[0-9]+$'
 rangepat='[0-9]+,[0-9]+'
+listpat='^[0-9 ]+$'
 blankpat='^ *$'
 
 ### uconfirm Usage:bbuild
@@ -735,14 +758,20 @@ function uchoose_multi {
 	debuge "CHOICES: $choices"
 
 	infoe "$mesg:" 
-	echo -e "$choices"|egrep '^' -n| sed 's/:/: /' 1>&2
+	local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
+	echo "$choicelist" 1>&2
 	
 	local sel=$(uask "Choice")
 	if [[ "$sel" =~ $blankpat ]]; then
 		return 1
+
 	elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
 		debuge "Number choice [$sel]"
 		echo -e "$choices" | sed -n "$sel p"
+	
+	elif [[ "$sel" =~ $listpat ]]; then
+		echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
+
 	else
 		debuge "Pattern choice [$sel]"
 		echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
@@ -1111,7 +1140,7 @@ function action_github_checkprereqs {
 }
 
 function action_github_jsoncall {
-	uname=$(uask "username")
+	local uname="$1"; shift
 
 	curl -s -u "$uname" "https://api.github.com/user/repos" -d "$*"
 }
@@ -1119,15 +1148,18 @@ function action_github_jsoncall {
 function action_githubcreate {
 	# GITARGS_* -- files, arguments
 	action_github_checkprereqs
+
+	local reponame="$1"; shift
+	local username=$(uask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		local githubjson_res="$(action_githubcreate_newrepo "${GITARGS_arguments[@]}")"
+		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]}")"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
 			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
 		fi
 
-		action_github_setremote "$githubjson_res"
+		action_github_setremote "$username" "$reponame"
 	else
 		faile "No repository specified"
 	fi
@@ -1141,29 +1173,28 @@ function jq_query {
 }
 
 function action_githubcreate_newrepo {
-	NEWREPO="$1" ; shift
-	DESC="$*"
+	local username="$1"; shift
+	local newrepo="$1" ; shift
+	local repodesc="$*"
 
-	action_github_jsoncall "{\"name\":\"$NEWREPO\", \"description\":\"$DESC\" }"
+	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 
 }
 
 function action_github_setremote {
+	local username="$1"; shift
+	local reponame="$1"; shift
 
-	debuge "$*"
-
-	local cloneurl="$(jq_query .git_url "$*"|sed 's/"//g')"
-
+	local cloneurl="ssh://git@github.com/$username/$reponame"
 	local defremote="$(action_remote_getremote "origin")"
 
-	if [[ -z "$defremote" ]]; then
-		defremote=origin
+	if [[ -z "${defremote:-}" ]]; then
+		defremote="origin"
 	else
-		defremote=gitnauto
+		defremote="gitnauto"
 	fi
 
 	action_remote_setremote "$defremote" "$cloneurl"
-
 }
 function action_submodule {
 	# GITARGS_* -- files, arguments
