@@ -27,17 +27,26 @@ function action_branch_delete {
 	fi
 }
 
+function git_repo_is_clean {
+	(gitcall status | grep -q 'nothing to commit') && return 0
+	return 1
+}
+
 function action_branch_switchto {
 	local bopt=
 	if ! action_branch_hasbranch "$1"; then
 		bopt=-b
 	fi
 
-	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop stash
+	# If clean, don't do undeterministic stash pushing and popping !
+	git_repo_is_clean
+	local isclean="?"
+
+	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$isclean" -lt 1 ]] || stashpop stash
 
 	gitcall checkout $bopt "$1"
 	
-	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop pop
+	[[ "$GSETTING_stashswitch_impede" = true ]]  || [[ "$isclean" -lt 1 ]] || stashpop pop
 }
 
 function stashpop {
