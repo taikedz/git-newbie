@@ -11,7 +11,7 @@ BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
 BBVERSION_BUILDDATE=2017-07-06
-BBVERSION_BUILD=128
+BBVERSION_BUILD=129
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -519,7 +519,7 @@ function args_getActionFor {
 			;;
 	esac
 }
-GSETTING_gitnfile=./.gitn
+GSETTING_gitnfile=.gitn
 
 function settings_initialize {
 	: ${GSETTING_warnmaster=true}
@@ -532,14 +532,15 @@ function settings_initialize {
 }
 
 function settings_load {
-	settings_bubbleup
+	local settingsfile="$(find_settings)"
+	[[ -n "$settingsfile" ]] && . "$settingsfile" || :
 
 	settings_initialize
 }
 
-function settings_bubbleup {
+function find_settings {
 	if [[ -f "$GSETTING_gitnfile" ]]; then
-		. "$GSETTING_gitnfile"
+		echo "$PWD/$GSETTING_gitnfile"
 
 	elif [[ -d .git ]] || [[ "$PWD" = / ]]; then
 		# We only want to load settings for the current git project
@@ -549,7 +550,7 @@ function settings_bubbleup {
 		# Use a subshell to avoid changing the working directory at main level
 		(
 		cd ..
-		settings_bubbleup
+		find_settings
 		)
 	fi
 }
@@ -1202,6 +1203,74 @@ function action_submodule {
 	local moduleurl="${GITARGS_arguments[0]}"
 
 	gitcall submodule add "$moduleurl"
+}
+# Add a license to the project
+
+GSETTING_licenses=/var/gitn/licsupport
+
+function action_license {
+	# GITARGS_* -- files, arguments
+	
+	case "${GITARGS_arguments[0]}" in
+	list)
+		ls "$GSETTING_licenses" ;;
+	newfile)
+		action_license_newfile "${GITARGS_arguments[@]:1}" ;;
+	*)
+		action_license_setlicense "${GITARGS_arguments[1]}"
+		;;
+	esac
+}
+
+function action_license_newfile {
+	local licensename="$1"; shift
+	local filename="$1"; shift
+
+	if [[ -z "$licensename" ]]; then
+		faile "No license specified"
+	fi
+
+	action_license_check "$licensename/head.txt" || faile "$licensename has no header data. Try 'gitn -license list'"
+
+	local codefile="$(action_license_getcodefile "$filename")"
+	if [[ -z "$codefile" ]]; then faile "No comment profile found."; fi
+
+	readkv start "$codefile" >> "$filename"
+
+	local midcom="$(readkv mid "$codefile")"
+	cat "$GSETTING_licenses/$licensename/head.txt" | sed -r "s|^|$midcom|" >> "$filename"
+
+	readkv end "$codefile" >> "$filename"
+}
+
+function action_license_getcodefile {
+	local fext="${1##*.}"
+	if [[ -z "$fext" ]]; then faile "Could not get extension of $1" ; fi
+
+	local mapfile="$GSETTING_licenses/comments/mapping.conf"
+	if [[ -f "$mapfile" ]]; then faile "Could not read mappping file"; fi
+
+	local commentstyle="$(readkv "$fext" "$mapfile")"
+	if [[ -z "$commentstyle" ]]; then faile "Could not determine comment style for $fext"; fi
+
+	local commentfile="$GSETTING_licenses/comments/$commentstyle.cmt"
+	if [[ ! -f "$commentstyle" ]]; then faile "No profile for $commentstyle"; fi
+
+	echo "$commentstyle"
+}
+
+function action_license_setlicense {
+	local licensename="$1"; shift
+
+	action_license_check "$licensename/full.txt" || faile "No data for $licensename. Try 'gitn -license list'"
+
+	cp "$GSETTING_licenses/$licensename/full.txt" LICENSE.txt
+}
+
+function action_license_check {
+	local licensename="$1"; shift
+
+	[[ ! -f "$GSETTING_licenses/$licensename" ]] 
 }
 
 function main {
