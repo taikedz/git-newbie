@@ -1,0 +1,10 @@
+#%include actions/diff.sh actions/commit.sh
+#%include actions/status.sh actions/fetch.sh
+#%include actions/pull.sh actions/push.sh
+#%include actions/remote.sh actions/branch.sh
+#%include actions/merge.sh actions/patch.sh
+#%include actions/log.sh actions/blame.sh
+#%include actions/stash.sh actions/checkout.sh
+#%include actions/tag.sh actions/release.sh
+#%include actions/github.sh actions/submodule.sh
+#%include actions/license.sh
