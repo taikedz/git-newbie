@@ -11,9 +11,24 @@ function settings_initialize {
 }
 
 function settings_load {
-	if [[ -f "$GSETTING_gitnfile" ]]; then
-		. "$GSETTING_gitnfile"
-	fi
+	settings_bubbleup
 
 	settings_initialize
+}
+
+function settings_bubbleup {
+	if [[ -f "$GSETTING_gitnfile" ]]; then
+		. "$GSETTING_gitnfile"
+
+	elif [[ -d .git ]] || [[ "$PWD" = / ]]; then
+		# We only want to load settings for the current git project
+		return
+
+	else
+		# Use a subshell to avoid changing the working directory at main level
+		(
+		cd ..
+		settings_bubbleup
+		)
+	fi
 }
