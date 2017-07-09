@@ -11,7 +11,7 @@ BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
 BBVERSION_BUILDDATE=2017-07-06
-BBVERSION_BUILD=129
+BBVERSION_BUILD=130
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -307,10 +307,11 @@ function hasbin {
 function ensureline {
 	local file="$1"; shift
 	local pattern="$1"; shift
+
 	if grep -P "^$pattern$" "$file" -q ; then
-		ensureline_matches "$@"
+		ensureline_matches "$file" "$pattern" "$@"
 	else
-		ensureline_add "$@"
+		ensureline_add "$file" "$pattern" "$@"
 	fi
 }
 
@@ -321,7 +322,7 @@ function ensureline_matches {
 
 	#TODO - add support to specify a start line, and a range?
 
-	sed 's^$PATTERN$$LINEDATA' -i "$FILE"
+	sed -r "s^$PATTERN$$LINEDATA" -i "$FILE"
 }
 
 function ensureline_add {
@@ -696,7 +697,6 @@ function action_diff_display {
 yespat='^(yes|YES|y|Y)$'
 numpat='^[0-9]+$'
 rangepat='[0-9]+,[0-9]+'
-listpat='^[0-9 ]+$'
 blankpat='^ *$'
 
 ### uconfirm Usage:bbuild
@@ -759,20 +759,14 @@ function uchoose_multi {
 	debuge "CHOICES: $choices"
 
 	infoe "$mesg:" 
-	local choicelist="$(echo -e "$choices"|egrep '^' -n| sed 's/:/: /')"
-	echo "$choicelist" 1>&2
+	echo -e "$choices"|egrep '^' -n| sed 's/:/: /' 1>&2
 	
 	local sel=$(uask "Choice")
 	if [[ "$sel" =~ $blankpat ]]; then
 		return 1
-
 	elif [[ "$sel" =~ $numpat ]] || [[ "$sel" =~ $rangepat ]]; then
 		debuge "Number choice [$sel]"
 		echo -e "$choices" | sed -n "$sel p"
-	
-	elif [[ "$sel" =~ $listpat ]]; then
-		echo "$choicelist" | egrep "^${sel// /|}:" | sed -r 's/^[0-9]+: //'
-
 	else
 		debuge "Pattern choice [$sel]"
 		echo -e "$choices"  |egrep "$(echo "$sel"|tr " " '|')"
@@ -937,13 +931,18 @@ function action_branch_delete {
 	fi
 }
 
+function git_repo_is_clean {
+	(gitcall status | grep -q 'nothing to commit') && return 0
+	return 1
+}
+
 function action_branch_switchto {
 	local bopt=
 	if ! action_branch_hasbranch "$1"; then
 		bopt=-b
 	fi
 
-	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop stash
+	[[ "$GSETTING_stashswitch_impede" = true ]] || git_repo_is_clean || stashpop stash
 
 	gitcall checkout $bopt "$1"
 	
