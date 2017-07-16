@@ -9,7 +9,7 @@ function action_log {
 }
 
 function action_log_general {
-	gitcall log
+	gitcall log --name-only
 }
 
 function action_log_files {
