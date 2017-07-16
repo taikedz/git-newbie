@@ -29,7 +29,7 @@ function action_githubcreate {
 
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
 		local reponame="${GITARGS_arguments[0]}"; shift
-		local username="$(uask "username")"
+		[[ -z "${username:-}" ]] && username="$(uask "username")"
 
 		[[ -n "$reponame" ]] || faile "No repo name"
 		[[ -n "$username" ]] || faile "No username supplied"

@@ -11,7 +11,7 @@ BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
 BBVERSION_BUILDDATE=2017-07-16
-BBVERSION_BUILD=145
+BBVERSION_BUILD=146
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -1170,7 +1170,7 @@ function action_githubcreate {
 
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
 		local reponame="${GITARGS_arguments[0]}"; shift
-		local username="$(uask "username")"
+		[[ -z "${username:-}" ]] && username="$(uask "username")"
 
 		[[ -n "$reponame" ]] || faile "No repo name"
 		[[ -n "$username" ]] || faile "No username supplied"
