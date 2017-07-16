@@ -8,7 +8,10 @@ It acts as a single, easy-to-use command for new users of git to get the most ou
 
 	git clone https://github.com/taikedz/git-newbie
 	cd git-newbie
-	./install # or, sudo ./install
+	./install.sh
+
+	# or, optionally, `sudo ./install.sh`, to install for everybody
+
 
 After this, the `gitn` command is installed and ready to use for any new terminal.
 
@@ -32,8 +35,14 @@ Example:
 
 You can then easily commit in one step:
 
-	gitn fileA fileB -m "Commit message"
+	gitn fileA fileB -m Your commit message here
 
 ## Building `gitn`
 
-I am using my [`bash-builder`](https://github.com/taikedz/bash-builder) to maintain `gitn`.
+This project uses [`bash-builder`](https://github.com/taikedz/bash-builder) to maintain `gitn`.
+
+To build the project, simply run
+
+	bbuild
+
+
