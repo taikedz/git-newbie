@@ -18,11 +18,16 @@ function action_githubcreate {
 	# GITARGS_* -- files, arguments
 	action_github_checkprereqs
 
-	local reponame="$1"; shift
-	local username=$(uask "username")
-	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]}")"
+		local reponame="${GITARGS_arguments[0]}"; shift
+		local username="$(uask "username")"
+
+		[[ -n "$reponame" ]] || faile "No repo name"
+		[[ -n "$username" ]] || faile "No username supplied"
+	
+		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
+
+		debuge "Result: $githubjson_res"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
 			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
@@ -45,6 +50,8 @@ function action_githubcreate_newrepo {
 	local username="$1"; shift
 	local newrepo="$1" ; shift
 	local repodesc="$*"
+
+	debuge "User: $username ; repo: $newrepo ; Description: $repodesc"
 
 	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 
