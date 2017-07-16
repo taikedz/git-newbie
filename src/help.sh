@@ -74,6 +74,18 @@
 #
 # See git blame for each file
 #
+# ++
+#
+# 	gitn -gh REPONAME DESCRIPTION ...
+#
+# Create a new repository on GitHub
+#
+# You will be asked for your username - if you enter just the username, then the repo will be created for that user
+#
+# If you enter the username, followed by `@` and the organisation name, the repo will be created for that organisation.
+#
+# 	USERNAME@ORGANISATION
+#
 ###/doc
 
 ### SETTINGS Usage:help

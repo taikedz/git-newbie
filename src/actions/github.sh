@@ -11,7 +11,16 @@ function action_github_checkprereqs {
 function action_github_jsoncall {
 	local uname="$1"; shift
 
-	curl -s -u "$uname" "https://api.github.com/user/repos" -d "$*"
+	local targetpath="user/repos"
+
+	if [[ "$uname" =~ @ ]]; then
+		targetpath="orgs/${uname#*@}/repos"
+		uname="${uname%@*}"
+	fi
+
+	debuge curl -s -u "$uname" "https://api.github.com/$targetpath" -d "$*"
+	breake "New repo for $uname at $targetpath with data [$*]"
+	curl -s -u "$uname" "https://api.github.com/$targetpath" -d "$*"
 }
 
 function action_githubcreate {
@@ -61,7 +70,7 @@ function action_github_setremote {
 	local username="$1"; shift
 	local reponame="$1"; shift
 
-	local cloneurl="ssh://git@github.com/$username/$reponame"
+	local cloneurl="ssh://git@github.com/${username#*@}/$reponame"
 	local defremote="$(action_remote_getremote "origin")"
 
 	if [[ -z "${defremote:-}" ]]; then
