@@ -40,13 +40,17 @@ function action_branch_switchto {
 
 	# If clean, don't do undeterministic stash pushing and popping !
 	git_repo_is_clean
-	local isclean="?"
+	local startedclean="$?"
 
-	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$isclean" -lt 1 ]] || stashpop stash
+	[[ "$startedclean" -gt 0 ]] && {
+		uconfirm "There are uncommitted changes. Stash, switch and pop?" || faile "Aborted - no changes were made."
+	} || :
+
+	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$startedclean" -lt 1 ]] || stashpop stash
 
 	gitcall checkout $bopt "$1"
 	
-	[[ "$GSETTING_stashswitch_impede" = true ]]  || [[ "$isclean" -lt 1 ]] || stashpop pop
+	[[ "$GSETTING_stashswitch_impede" = true ]]  || [[ "$startedclean" -lt 1 ]] || stashpop pop
 }
 
 function stashpop {

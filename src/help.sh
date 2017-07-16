@@ -17,7 +17,8 @@
 #
 # ++
 #
-# 	gitn -s [ [REMOTE] BRANCH] [--tags]
+# 	gitn -s [ [REMOTE] BRANCH]
+#	gitn -s --tags
 #
 # Push to the specified or inferred branch and remote. If no remote is specified, then the first remote in `git remote -v` is used, or the one in $GSETTING_remote if set. See SETTINGS.
 #
@@ -31,17 +32,15 @@
 #
 # ++
 #
-# 	gitn -b [BRANCH] [--delete [--force] ]
+# 	gitn -b
+# 	gitn BRANCH
+# 	gitn -b BRANCH --delete [--force]
 #
 # List branches or switch to specified branch.
 #
+# If there are uncommitted changes and you try to switch, gitn will stash your changes, switch, and stash pop your changes.
+#
 # If --delete is specified, deletes the branch. Use --force to force the deletion of a branch not fully merged to its upstream.
-#
-# ++
-#
-# 	gitn -c OBJECT
-#
-# Checkout an object
 #
 # ++
 #
