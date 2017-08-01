@@ -10,8 +10,8 @@ BBVERSION_MINOR=0
 BBVERSION_POINT=0
 BBVERSION_FLAG=dev
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-07-06
-BBVERSION_BUILD=130
+BBVERSION_BUILDDATE=2017-08-01
+BBVERSION_BUILD=131
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -942,11 +942,15 @@ function action_branch_switchto {
 		bopt=-b
 	fi
 
-	[[ "$GSETTING_stashswitch_impede" = true ]] || git_repo_is_clean || stashpop stash
+	# If clean, don't do undeterministic stash pushing and popping !
+	git_repo_is_clean
+	local isclean="?"
+
+	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$isclean" -lt 1 ]] || stashpop stash
 
 	gitcall checkout $bopt "$1"
 	
-	[[ "$GSETTING_stashswitch_impede" = true ]] || stashpop pop
+	[[ "$GSETTING_stashswitch_impede" = true ]]  || [[ "$isclean" -lt 1 ]] || stashpop pop
 }
 
 function stashpop {
