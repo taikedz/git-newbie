@@ -40,7 +40,7 @@ function action_branch_switchto {
 
 	# If clean, don't do undeterministic stash pushing and popping !
 	git_repo_is_clean
-	local isclean="?"
+	local isclean="$?"
 
 	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$isclean" -lt 1 ]] || stashpop stash
 
