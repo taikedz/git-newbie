@@ -7,11 +7,11 @@
 #%VERSIONFILE
 BBVERSION_MAJOR=2
 BBVERSION_MINOR=0
-BBVERSION_POINT=0
-BBVERSION_FLAG=dev
+BBVERSION_POINT=1
+BBVERSION_FLAG=release
 BBVERSION_PROGRAM=gitn
-BBVERSION_BUILDDATE=2017-08-02
-BBVERSION_BUILD=132
+BBVERSION_BUILDDATE=2017-09-07
+BBVERSION_BUILD=138
 
 function bbns_version_infoe {
 	type infoe 2>&1|if grep 'not found' -q; then
@@ -361,10 +361,15 @@ function gitn_getRemote {
 	if [[ -z "${2:-}" ]]; then
 		# git command BRANCH
 		if [[ -z "${GSETTING_remote:-}" ]]; then
-			warne Implicitly returning first remote
-			export GSETTING_remote="$(git remote -v|cut -f1|sort|uniq|head -n 1)"
+			export GSETTING_remote="$(git remote | grep -P '^origin\b')"
+
+			if [[ -z "${GSETTING_remote:-}" ]]; then
+				warne "No remote 'origin' - using first remote. Set GSETTING_remote to override"
+				export GSETTING_remote="$(git remote|head -n 1)"
+			fi
 		fi
 
+		infoe "Using remote '$GSETTING_remote'"
 		echo "$GSETTING_remote"
 	else
 		# git command REMOTE BRANCH
@@ -1153,11 +1158,11 @@ function action_githubcreate {
 	# GITARGS_* -- files, arguments
 	action_github_checkprereqs
 
-	local reponame="$1"; shift
+	local reponame="${GITARGS_arguments[0]}"
 	local username=$(uask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]}")"
+		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
 			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
