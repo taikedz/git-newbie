@@ -46,6 +46,8 @@ function action_githubcreate_newrepo {
 	local newrepo="$1" ; shift
 	local repodesc="$*"
 
+	debuge "User: $username ; repo: $newrepo ; Description: $repodesc"
+
 	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 
 }

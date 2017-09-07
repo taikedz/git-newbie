@@ -35,8 +35,6 @@ function main {
 		action_merge ;;
 	update)
 		action_update ;;
-	checkout)
-		action_checkout ;;
 	stash)
 		action_stash ;;
 	tag)
