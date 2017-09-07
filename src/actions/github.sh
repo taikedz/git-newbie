@@ -18,11 +18,11 @@ function action_githubcreate {
 	# GITARGS_* -- files, arguments
 	action_github_checkprereqs
 
-	local reponame="$1"; shift
+	local reponame="${GITARGS_arguments[0]}"
 	local username=$(uask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
-		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]}")"
+		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
 			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
