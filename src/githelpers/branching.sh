@@ -17,10 +17,15 @@ function gitn_getRemote {
 	if [[ -z "${2:-}" ]]; then
 		# git command BRANCH
 		if [[ -z "${GSETTING_remote:-}" ]]; then
-			warne Implicitly returning first remote
-			export GSETTING_remote="$(git remote -v|cut -f1|sort|uniq|head -n 1)"
+			export GSETTING_remote="$(git remote | grep -P '^origin\b')"
+
+			if [[ -z "${GSETTING_remote:-}" ]]; then
+				warne "No remote 'origin' - using first remote. Set GSETTING_remote to override"
+				export GSETTING_remote="$(git remote|head -n 1)"
+			fi
 		fi
 
+		infoe "Using remote '$GSETTING_remote'"
 		echo "$GSETTING_remote"
 	else
 		# git command REMOTE BRANCH
