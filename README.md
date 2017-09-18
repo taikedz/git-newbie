@@ -23,9 +23,13 @@ If you do not want to be warned when developing on master, use the setting `GSET
 
 ## Useful features
 
-Running `gitn` without arguments will cause a `git fetch` to happen (unless you specify argument `--nf`, or use setting `GSETTING_nofetch=true`) and then display the `git status` - for example
+### Shorthand fetch + status
 
-	gitn
+Run `gitn` without arguments to see the status. This will also do a `git fetch` first, disable this with the `--nf` option
+
+	gitn [--nf]
+
+### Use command history to provide a commit message
 
 Running `gitn` simply with a list of changed files will bring up a colorized `git diff` in `less`, once for each, allowing you to easily view and navigate the changes before committing.
 
@@ -36,6 +40,18 @@ Example:
 You can then easily commit in one step:
 
 	gitn fileA fileB -m Your commit message here
+
+### Move your changes
+
+Switch branches with changes still pending: if you have uncommitted changes, these will move over to the target branch when you switch.
+
+You will be prompted for this should the situation occur.
+
+### See files in log
+
+`gitn -log` shows the git log, whilst also displaying the files that were changed and added with that commit.
+
+	gitn -log
 
 ## Building `gitn`
 
