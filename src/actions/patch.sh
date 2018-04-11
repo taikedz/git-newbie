@@ -21,7 +21,7 @@ function action_patch_apply {
 
 	gitcall apply --check "$patchfile"
 
-	uconfirm "Proceed ?" || out:fail "Aborted"
+	askuser:confirm "Proceed ?" || out:fail "Aborted"
 
 	gitcall am --signoff < "$patchfile"
 }

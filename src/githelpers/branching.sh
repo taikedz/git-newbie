@@ -1,5 +1,5 @@
 function gitn_choose_branch {
-	uchoose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
+	askuser:choose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
 }
 
 ### git_getRemote and git_getBranch Usage:bbuild

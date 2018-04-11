@@ -307,7 +307,7 @@ function gitcall {
 	git "$@"
 }
 function gitn_choose_branch {
-	uchoose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
+	askuser:choose "Which branch" "$(git branch --list 2>&1|sed -r 's/^..//')"
 }
 
 ### git_getRemote and git_getBranch Usage:bbuild
@@ -901,9 +901,9 @@ function action_commit {
 	gitcall add "${GITARGS_files[@]}"
 
 	if [[ "$GSETTING_warnmaster" = true ]] && [[ "$(gitn_getBranch)" = master ]]; then
-		uconfirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || out:fail "Abort."
-		#uconfirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || {
-		#	uconfirm "Would you like to move changes to another branch ?" && {
+		askuser:confirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || out:fail "Abort."
+		#askuser:confirm "${CBYEL}WARNING -- you are on master. Continue ?$CDEF" || {
+		#	askuser:confirm "Would you like to move changes to another branch ?" && {
 		#		action_branch_switchto "$(gitn_choose_branch)" || out:fail "Failed to switch"
 		#	} || out:fail Abort
 		#}
@@ -1046,7 +1046,7 @@ function action_branch_switchto {
 	local startedclean="$?"
 
 	[[ "$startedclean" -gt 0 ]] && {
-		uconfirm "There are uncommitted changes. Stash, switch and pop?" || out:fail "Aborted - no changes were made."
+		askuser:confirm "There are uncommitted changes. Stash, switch and pop?" || out:fail "Aborted - no changes were made."
 	} || :
 
 	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$startedclean" -lt 1 ]] || stashpop stash
@@ -1060,10 +1060,10 @@ function stashpop {
 	if [[ "$1" = stash ]]; then
 		STASHTEMP="$(mktemp)"
 		gitcall stash > "$STASHTEMP"
-		debuge "Stash data : $(cat "$STASHTEMP")"
+		out:debug "Stash data : $(cat "$STASHTEMP")"
 	elif [[ "$1" = pop ]]; then
 		if ! grep -q "No local changes" "$STASHTEMP"; then
-			debuge "Popping stash"
+			out:debug "Popping stash"
 			gitcall stash pop
 		fi
 	else
@@ -1129,7 +1129,7 @@ function action_patch_apply {
 
 	gitcall apply --check "$patchfile"
 
-	uconfirm "Proceed ?" || out:fail "Aborted"
+	askuser:confirm "Proceed ?" || out:fail "Aborted"
 
 	gitcall am --signoff < "$patchfile"
 }
@@ -1321,7 +1321,7 @@ function action_githubcreate {
 	action_github_checkprereqs
 
 	local reponame="${GITARGS_arguments[0]}"
-	local username=$(uask "username")
+	local username=$(askuser:ask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
 		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
@@ -1348,7 +1348,7 @@ function action_githubcreate_newrepo {
 	local newrepo="$1" ; shift
 	local repodesc="$*"
 
-	debuge "User: $username ; repo: $newrepo ; Description: $repodesc"
+	out:debug "User: $username ; repo: $newrepo ; Description: $repodesc"
 
 	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 

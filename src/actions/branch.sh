@@ -43,7 +43,7 @@ function action_branch_switchto {
 	local startedclean="$?"
 
 	[[ "$startedclean" -gt 0 ]] && {
-		uconfirm "There are uncommitted changes. Stash, switch and pop?" || out:fail "Aborted - no changes were made."
+		askuser:confirm "There are uncommitted changes. Stash, switch and pop?" || out:fail "Aborted - no changes were made."
 	} || :
 
 	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$startedclean" -lt 1 ]] || stashpop stash
@@ -57,10 +57,10 @@ function stashpop {
 	if [[ "$1" = stash ]]; then
 		STASHTEMP="$(mktemp)"
 		gitcall stash > "$STASHTEMP"
-		debuge "Stash data : $(cat "$STASHTEMP")"
+		out:debug "Stash data : $(cat "$STASHTEMP")"
 	elif [[ "$1" = pop ]]; then
 		if ! grep -q "No local changes" "$STASHTEMP"; then
-			debuge "Popping stash"
+			out:debug "Popping stash"
 			gitcall stash pop
 		fi
 	else

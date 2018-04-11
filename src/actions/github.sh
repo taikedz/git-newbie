@@ -21,7 +21,7 @@ function action_githubcreate {
 	action_github_checkprereqs
 
 	local reponame="${GITARGS_arguments[0]}"
-	local username=$(uask "username")
+	local username=$(askuser:ask "username")
 	
 	if [[ -n "${GITARGS_arguments[*]}" ]]; then
 		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
@@ -48,7 +48,7 @@ function action_githubcreate_newrepo {
 	local newrepo="$1" ; shift
 	local repodesc="$*"
 
-	debuge "User: $username ; repo: $newrepo ; Description: $repodesc"
+	out:debug "User: $username ; repo: $newrepo ; Description: $repodesc"
 
 	action_github_jsoncall "$username" "{\"name\":\"$newrepo\", \"description\":\"$repodesc\" }"
 
