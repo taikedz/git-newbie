@@ -14,7 +14,7 @@ function action_log_general {
 
 function action_log_files {
 	for thefile in "${GITARGS_allfiles[@]}"; do
-		infoe "Log info for $thefile"
+		out:info "Log info for $thefile"
 		gitcall log "$thefile"
 	done
 }

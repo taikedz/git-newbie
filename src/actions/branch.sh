@@ -43,7 +43,7 @@ function action_branch_switchto {
 	local startedclean="$?"
 
 	[[ "$startedclean" -gt 0 ]] && {
-		uconfirm "There are uncommitted changes. Stash, switch and pop?" || faile "Aborted - no changes were made."
+		uconfirm "There are uncommitted changes. Stash, switch and pop?" || out:fail "Aborted - no changes were made."
 	} || :
 
 	[[ "$GSETTING_stashswitch_impede" = true ]] || [[ "$startedclean" -lt 1 ]] || stashpop stash
@@ -64,6 +64,6 @@ function stashpop {
 			gitcall stash pop
 		fi
 	else
-		faile "Invalid stashpop operation"
+		out:fail "Invalid stashpop operation"
 	fi
 }

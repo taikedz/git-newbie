@@ -65,7 +65,7 @@ function arguments_dosetting {
 	--debug)
 		: ;;
 	*)
-		faile "Unknown setting '$1'" ;;
+		out:fail "Unknown setting '$1'" ;;
 	esac
 }
 
@@ -122,7 +122,7 @@ function args_getActionFor {
 			echo "submodule" ;;
 
 		*)
-			faile "Action $1 unknown"
+			out:fail "Action $1 unknown"
 			;;
 	esac
 }

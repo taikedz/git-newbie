@@ -4,6 +4,6 @@
 #
 ###/doc
 function gitcall {
-	breake "git $@"
+	out:break "git $@"
 	git "$@"
 }

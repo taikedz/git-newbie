@@ -16,12 +16,12 @@ function action_patch_apply {
 	local patchfile="$1"; shift
 
 	if [[ ! -f "$patchfile" ]]; then
-		faile "No such file $patchfile"
+		out:fail "No such file $patchfile"
 	fi
 
 	gitcall apply --check "$patchfile"
 
-	uconfirm "Proceed ?" || faile "Aborted"
+	uconfirm "Proceed ?" || out:fail "Aborted"
 
 	gitcall am --signoff < "$patchfile"
 }
@@ -36,7 +36,7 @@ function action_patch_branch {
 	fi
 
 	if [[ "$thisbranch" = "$basebranch" ]]; then
-		faile "You are on $thisbranch and trying to make a patch from $basebranch. You cannot create a patch from the same branch."
+		out:fail "You are on $thisbranch and trying to make a patch from $basebranch. You cannot create a patch from the same branch."
 	fi
 
 	gitcall format-patch "$basebranch" --stdout > "$outfile"

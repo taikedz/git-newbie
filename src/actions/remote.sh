@@ -17,7 +17,7 @@ function action_remote_setremote {
 			if [[ "$urlstart" != 's/' ]]; then
 				gitcall remote add "$remote" "$urlpat"
 			else
-				faile "Remote $remote is not defined yet."
+				out:fail "Remote $remote is not defined yet."
 			fi
 		else
 			if [[ "$urlstart" = s/ ]]; then

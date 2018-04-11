@@ -9,11 +9,11 @@ function action_push {
 }
 
 function action_push_changes {
-	breake "$GITARGS_arguments"
+	out:break "$GITARGS_arguments"
 	local remote=$(gitn_getRemote "${GITARGS_arguments[@]}")
 	local branch=$(gitn_getBranch "${GITARGS_arguments[@]}")
 
-	infoe "Pushing $branch to $remote/$branch"
+	out:info "Pushing $branch to $remote/$branch"
 	gitcall push "$remote" "$branch"
 }
 

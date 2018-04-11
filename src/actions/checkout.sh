@@ -4,6 +4,6 @@ function action_checkout {
 	if [[ "${#GITARGS_files[@]}" = 1 ]]; then
 		gitcall checkout "${GITARGS_files[0]}"
 	else
-		faile "You must specify exactly one object for checkout."
+		out:fail "You must specify exactly one object for checkout."
 	fi
 }

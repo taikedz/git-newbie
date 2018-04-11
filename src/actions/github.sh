@@ -1,10 +1,12 @@
+#%include bincheck.sh
+
 function action_github_checkprereqs {
-	if ! hasbin curl; then
-		faile "Cannot find curl -- abort"
+	if ! bincheck:has curl; then
+		out:fail "Cannot find curl -- abort"
 	fi
 
-	if ! hasbin jq; then
-		faile "Cannot find jq"
+	if ! bincheck:has jq; then
+		out:fail "Cannot find jq"
 	fi
 }
 
@@ -25,12 +27,12 @@ function action_githubcreate {
 		local githubjson_res="$(action_githubcreate_newrepo "$username" "$reponame" "${GITARGS_arguments[*]:1}")"
 
 		if [[ "$(jq_query .message "$githubjson_res")" =~ failed ]]; then
-			faile "Could not create github repo: $(jq_query .errors "$githubjson_res")"
+			out:fail "Could not create github repo: $(jq_query .errors "$githubjson_res")"
 		fi
 
 		action_github_setremote "$username" "$reponame"
 	else
-		faile "No repository specified"
+		out:fail "No repository specified"
 	fi
 }
 

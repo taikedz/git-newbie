@@ -21,13 +21,13 @@ function action_license_newfile {
 	local filename="$1"; shift
 
 	if [[ -z "$licensename" ]]; then
-		faile "No license specified"
+		out:fail "No license specified"
 	fi
 
-	action_license_check "$licensename/head.txt" || faile "$licensename has no header data. Try 'gitn -license list'"
+	action_license_check "$licensename/head.txt" || out:fail "$licensename has no header data. Try 'gitn -license list'"
 
 	local codefile="$(action_license_getcodefile "$filename")"
-	if [[ -z "$codefile" ]]; then faile "No comment profile found."; fi
+	if [[ -z "$codefile" ]]; then out:fail "No comment profile found."; fi
 
 	readkv start "$codefile" >> "$filename"
 
@@ -39,16 +39,16 @@ function action_license_newfile {
 
 function action_license_getcodefile {
 	local fext="${1##*.}"
-	if [[ -z "$fext" ]]; then faile "Could not get extension of $1" ; fi
+	if [[ -z "$fext" ]]; then out:fail "Could not get extension of $1" ; fi
 
 	local mapfile="$GSETTING_licenses/comments/mapping.conf"
-	if [[ -f "$mapfile" ]]; then faile "Could not read mappping file"; fi
+	if [[ -f "$mapfile" ]]; then out:fail "Could not read mappping file"; fi
 
 	local commentstyle="$(readkv "$fext" "$mapfile")"
-	if [[ -z "$commentstyle" ]]; then faile "Could not determine comment style for $fext"; fi
+	if [[ -z "$commentstyle" ]]; then out:fail "Could not determine comment style for $fext"; fi
 
 	local commentfile="$GSETTING_licenses/comments/$commentstyle.cmt"
-	if [[ ! -f "$commentstyle" ]]; then faile "No profile for $commentstyle"; fi
+	if [[ ! -f "$commentstyle" ]]; then out:fail "No profile for $commentstyle"; fi
 
 	echo "$commentstyle"
 }
@@ -56,7 +56,7 @@ function action_license_getcodefile {
 function action_license_setlicense {
 	local licensename="$1"; shift
 
-	action_license_check "$licensename/full.txt" || faile "No data for $licensename. Try 'gitn -license list'"
+	action_license_check "$licensename/full.txt" || out:fail "No data for $licensename. Try 'gitn -license list'"
 
 	cp "$GSETTING_licenses/$licensename/full.txt" LICENSE.txt
 }

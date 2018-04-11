@@ -1,14 +1,12 @@
 #!/bin/bash
 
-#%include version.sh
+#%include runmain.sh
 
-#%include notest.sh
-
-#%include help.sh autohelp.sh getbin.sh ensureline.sh
+#%include help.sh autohelp.sh ensureline.sh
 
 #%include githelpers/calling.sh githelpers/branching.sh githelpers/commits.sh
 #%include arguments.sh settings.sh
-#%include bashout.sh
+#%include out.sh
 
 #%include actions.includes
 
@@ -52,9 +50,9 @@ function main {
 	submodule)
 		action_submodule ;;
 	*)
-		faile "Action $GITARGS_action not yet available"
+		out:fail "Action $GITARGS_action not yet available"
 		;;
 	esac
 }
 
-notest main "$@"
+runmain gitn main "$@"
