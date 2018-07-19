@@ -1,5 +1,17 @@
 # git-newbie - a helpful git wrapper
 
+> 2018-07-19
+>
+> Don't use this project
+>
+> It was written when I was [firmly on mount stupid](https://www.smbc-comics.com/?id=2475) and thought I could be helpful.
+>
+> The concept of a tool that helps new git users remains viable, however this implementation is not such a tool.
+>
+> The development graph itself is testament to how I lost my way.
+>
+> The project is being shelved, and will be reborn as [`git-shortcuts`](https://github.com/taikedz/git-newbie)
+
 `gitn` is a helpful wrapper for working with git.
 
 It acts as a single, easy-to-use command for new users of git to get the most out of the basics, and acts as a molly-guard against some bad newbie development practices.
