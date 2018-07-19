@@ -10,7 +10,7 @@
 >
 > The development graph itself is testament to how I lost my way.
 >
-> The project is being shelved, and will be reborn as [`git-shortcuts`](https://github.com/taikedz/git-newbie)
+> The project is being shelved, and will be reborn as [`git-shortcuts`](https://github.com/taikedz/git-shortcuts)
 
 `gitn` is a helpful wrapper for working with git.
 
